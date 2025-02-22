@@ -71,16 +71,19 @@
         {
             Fishodoro t;
             if (source is Fishodoro)
-                t = (Fishodoro)source;
-            // updates timer
-            t.time--;
-
-            // stops timer after it runs out
-            if (t.time == 0)
             {
-                t.Pause();
-                t.done = true;
-            }
+                t = (Fishodoro)source;
+                
+                // updates timer
+                t.time--;
+
+                // stops timer after it runs out
+                if (t.time == 0)
+                {
+                    t.Pause();
+                    t.done = true;
+                }
+            }    
         }
     }
 }
