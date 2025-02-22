@@ -1,8 +1,225 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "To-Do List";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container text-center">
+    <h2 class="display-4">Welcome to the App</h2>
+
+    <!-- Button to toggle the To-Do List pop-out -->
+    <button class="btn btn-primary fixed-top ml-3 mt-3" onclick="toggleTodoListPopup()">Toggle To-Do List</button>
+
+    <!-- Pop-out Panel for To-Do List -->
+    <div id="todoListPopup" class="todo-popup">
+        <div class="popup-content">
+            <h3>To-Do List</h3>
+
+            <!-- Button to open modal for adding a new task -->
+            <button class="btn btn-success mb-3" onclick="openModal()">Add Task</button>
+
+            <!-- Modal for adding a new task -->
+            <div id="taskModal" class="modal" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Add Task</h5>
+                            <button type="button" class="close" onclick="closeModal()" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <!-- Input for task name -->
+                            <input type="text" id="taskInput" class="form-control mb-2" placeholder="New task">
+                            <!-- Input for task description -->
+                            <textarea id="taskDescription" class="form-control mb-2" placeholder="Task description" rows="3"></textarea>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                            <button type="button" class="btn btn-primary" onclick="addTask()">Add</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="task-list mt-3">
+                <!-- Task list container -->
+                <ul id="todoList" class="list-group"></ul>
+            </div>
+        </div>
+    </div>
 </div>
+
+<style>
+    /* To-Do List pop-out panel styling */
+    .todo-popup {
+        display: none;
+        position: fixed;
+        top: 50px;
+        left: 10px;
+        width: 300px;
+        height: 500px;
+        background-color: #fff;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        padding: 10px;
+        border-radius: 8px;
+        z-index: 9999;
+        overflow-y: auto;
+    }
+
+    /* Styling for task list container with scrolling */
+    .task-list {
+        max-height: 300px;
+        overflow-y: auto;
+        margin-top: 10px;
+        border: 1px solid #ddd;
+        padding: 5px;
+        background: white;
+    }
+
+    /* Modal styling */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgb(0, 0, 0);
+        background-color: rgba(0, 0, 0, 0.4);
+    }
+
+    /* Modal Content */
+    .modal-dialog {
+        margin: 15% auto;
+        max-width: 400px;
+    }
+
+    /* Styling for the checkbox */
+    .delete-checkbox {
+        margin-left: 10px;
+    }
+</style>
+
+<script>
+    let tasks = []; // Global variable for storing tasks
+
+    // Function to open and close the To-Do List pop-out
+    function toggleTodoListPopup() {
+        const popup = document.getElementById("todoListPopup");
+        if (popup.style.display === "block") {
+            popup.style.display = "none"; // If open, close it
+        } else {
+            popup.style.display = "block"; // If closed, open it
+        }
+    }
+
+    // Function to open the modal for adding a task
+    function openModal() {
+        document.getElementById("taskModal").style.display = "block"; // Show modal
+    }
+
+    // Function to close the modal
+    function closeModal() {
+        document.getElementById("taskModal").style.display = "none"; // Hide modal
+    }
+
+    // Function to fetch and display tasks
+    async function fetchTasks() {
+        // Fetch tasks from localStorage if available
+        const storedTasks = localStorage.getItem('tasks');
+        tasks = storedTasks ? JSON.parse(storedTasks) : []; // Parse the stored tasks or set as empty
+
+        const list = document.getElementById("todoList");
+        list.innerHTML = ""; // Clear the current list
+
+        tasks.forEach((task, index) => {
+            const li = document.createElement("li");
+            li.className = "list-group-item d-flex justify-content-between align-items-center";
+            li.setAttribute("data-index", index); // Set the index for drag-and-drop
+
+            // Task name and description
+            li.innerHTML =
+                `<input type="checkbox" class="delete-checkbox" onclick="toggleTaskRemoval(${index})">
+                ${task.name} - <i>${task.description}</i>`;
+
+            // Enable drag-and-drop
+            li.draggable = true;
+            li.ondragstart = dragStart; // When dragging starts, store the index
+            li.ondragover = dragOver; // Allow drop by preventing default behavior
+            li.ondrop = drop; // Handle the drop to reorder tasks
+
+            list.appendChild(li); // Add task to the list
+        });
+    }
+
+    // Add task to the list (with name and description)
+    function addTask() {
+        const taskName = document.getElementById("taskInput").value.trim();
+        const taskDescription = document.getElementById("taskDescription").value.trim();
+        if (taskName) {
+            tasks.push({ name: taskName, description: taskDescription }); // Add new task with description
+            localStorage.setItem('tasks', JSON.stringify(tasks)); // Save tasks to localStorage
+            closeModal(); // Close the modal
+            fetchTasks(); // Refresh the task list
+
+            // Clear the input fields for a fresh task
+            document.getElementById("taskInput").value = '';
+            document.getElementById("taskDescription").value = '';
+        }
+    }
+
+    // Function to delete a task when checkbox is checked
+    function toggleTaskRemoval(index) {
+        const checkbox = document.querySelectorAll('.delete-checkbox')[index];
+        if (checkbox.checked) {
+            tasks.splice(index, 1); // Remove the checked task
+            localStorage.setItem('tasks', JSON.stringify(tasks)); // Save tasks to localStorage
+            fetchTasks(); // Refresh the task list
+        }
+    }
+
+    // Drag-and-drop functionality
+    let draggedIndex = null;
+
+    // When dragging starts, store the index of the task being dragged
+    function dragStart(event) {
+        draggedIndex = event.target.getAttribute("data-index");
+    }
+
+    // Allow the task to be dropped in a new position
+    function dragOver(event) {
+        event.preventDefault(); // Prevent default behavior (to allow drop)
+    }
+
+    // Handle dropping the task to reorder it
+    async function drop(event) {
+        event.preventDefault();
+        const targetIndex = event.target.getAttribute("data-index"); // Get the index of the target task
+
+        // Ensure a valid drop (not the same index)
+        if (draggedIndex !== null && targetIndex !== null && draggedIndex !== targetIndex) {
+            // Move the dragged task to the new position
+            const movedTask = tasks.splice(draggedIndex, 1)[0];
+            tasks.splice(targetIndex, 0, movedTask);
+
+            localStorage.setItem('tasks', JSON.stringify(tasks)); // Save tasks to localStorage
+            fetchTasks(); // Refresh the task list
+        }
+    }
+
+    // Fetch tasks initially when the page loads
+    fetchTasks();
+
+    // Add event listener to close the pop-out when clicking outside of it
+    document.addEventListener("click", function(event) {
+        const popup = document.getElementById("todoListPopup");
+        const button = document.querySelector("button[onclick='toggleTodoListPopup()']");
+        const popupContent = document.getElementById("todoListPopup").querySelector('.popup-content');
+
+        // Prevent closing the pop-out if clicking inside the task list or checkbox
+        if (!popupContent.contains(event.target) && !button.contains(event.target) && !event.target.closest('.delete-checkbox')) {
+            popup.style.display = "none"; // Close the pop-out if clicked outside
+        }
+    });
+</script>
