@@ -50,5 +50,4 @@ namespace Fishodoro.Controllers
         private static List<string> LoadTasks() =>
             System.IO.File.Exists(filePath) ? JsonSerializer.Deserialize<List<string>>(System.IO.File.ReadAllText(filePath))! : new List<string>();
     }
-
 }
