@@ -1,8 +1,118 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "To-Do List";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container text-center">
+    <h2 class="display-4">To-Do List</h2>
+    <!-- Input field to add new task -->
+    <input type="text" id="taskInput" class="form-control mb-2" placeholder="New task">
+    <!-- Button to trigger adding the task -->
+    <button class="btn btn-primary" onclick="addTask()">Add</button>
+
+    <div class="task-list mt-3">
+        <!-- Task list container -->
+        <ul id="todoList" class="list-group"></ul>
+    </div>
 </div>
+
+<style>
+    /* Styling for task list container with scrolling */
+    .task-list {
+        max-height: 200px;
+        overflow-y: auto;
+        margin-top: 10px;
+        border: 1px solid #ddd;
+        padding: 5px;
+        background: white;
+    }
+    /* Styling for the delete button */
+    .delete-btn {
+        color: red;
+        cursor: pointer;
+        float: right;
+    }
+</style>
+
+<script>
+    // Fetch tasks from the server and display them
+    async function fetchTasks() {
+        const response = await fetch('/Todo/GetTasks'); // Get tasks from the API
+        const tasks = await response.json(); // Parse the JSON response
+        const list = document.getElementById("todoList"); // Reference to the UL element
+        list.innerHTML = ""; // Clear the current list
+
+        // Loop through the tasks and add them to the list
+        tasks.forEach((task, index) => {
+            const li = document.createElement("li");
+            li.className = "list-group-item d-flex justify-content-between align-items-center";
+            li.textContent = task;
+            li.draggable = true; // Enable dragging of tasks
+            li.setAttribute("data-index", index); // Set task index for later reordering
+            li.ondragstart = dragStart; // Start dragging
+            li.ondragover = dragOver; // Allow task to be dragged over
+            li.ondrop = drop; // Handle the drop action
+
+            // Create the delete button and attach it to the task item
+            const deleteBtn = document.createElement("span");
+            deleteBtn.textContent = " ❌";
+            deleteBtn.className = "delete-btn";
+            deleteBtn.onclick = () => deleteTask(task); // Delete task when clicked
+            li.appendChild(deleteBtn);
+            list.appendChild(li); // Add task to the list
+        });
+    }
+
+    // Add a new task to the list
+    async function addTask() {
+        const task = document.getElementById("taskInput").value.trim(); // Get input value
+        if (task) {
+            // Send the task to the server via POST request
+            await fetch('/Todo/AddTask', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(task) });
+            document.getElementById("taskInput").value = ""; // Clear the input field
+            fetchTasks(); // Refresh the task list
+        }
+    }
+
+    // Delete a task from the list
+    async function deleteTask(task) {
+        // Send request to delete task
+        await fetch('/Todo/DeleteTask', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(task) });
+        fetchTasks(); // Refresh the task list
+    }
+
+    let draggedIndex = null; // Store the index of the dragged task
+
+    // When dragging starts, store the index of the task being dragged
+    function dragStart(event) {
+        draggedIndex = event.target.getAttribute("data-index");
+    }
+
+    // Allow the task to be dropped in a new position
+    function dragOver(event) {
+        event.preventDefault(); // Prevent default behavior (to allow drop)
+    }
+
+    // Handle dropping the task to reorder it
+    async function drop(event) {
+        event.preventDefault();
+        const targetIndex = event.target.getAttribute("data-index"); // Get the index of the target task
+
+        // Ensure a valid drop (not the same index)
+        if (draggedIndex !== null && targetIndex !== null && draggedIndex !== targetIndex) {
+            // Fetch current tasks
+            const response = await fetch('/Todo/GetTasks');
+            let tasks = await response.json();
+
+            // Move the dragged task to the new position
+            const movedTask = tasks.splice(draggedIndex, 1)[0];
+            tasks.splice(targetIndex, 0, movedTask);
+
+            // Send the reordered tasks back to the server
+            await fetch('/Todo/ReorderTasks', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(tasks) });
+            fetchTasks(); // Refresh the task list
+        }
+    }
+
+    // Fetch and display tasks when the page loads
+    fetchTasks();
+</script>
