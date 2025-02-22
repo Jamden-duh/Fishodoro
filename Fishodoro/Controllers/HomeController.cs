@@ -10,12 +10,12 @@ namespace Fishodoro.Controllers
         private int coinAmount = 100;
 
         /// <summary>
-        /// creates coinAmount as a read-only public int to be accessed by the user
+        /// creates coinAmount as a read and write public property
         /// </summary>
         public int CoinAmount
         {
             get { return coinAmount; }
-            //no set line: property is read-only
+            set { coinAmount = value; }
         }
 
         public HomeController(ILogger<HomeController> logger)
