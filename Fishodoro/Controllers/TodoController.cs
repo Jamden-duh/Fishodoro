@@ -1,53 +1,55 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-using System.IO;
 using System.Text.Json;
 
 namespace Fishodoro.Controllers
 {
-    [Route("Todo")] // API route prefix
-    [ApiController] // Designates this class as an API controller
+    [Route("Todo")]
+    [ApiController]
     public class TodoController : ControllerBase
     {
-        private static string filePath = "tasks.json"; // Path to store tasks data
-        private static List<string> tasks = LoadTasks(); // Load tasks from file at startup
+        private static string filePath = "tasks.json";
+        private static List<TodoItem> tasks = LoadTasks();
 
-        // Endpoint to retrieve all tasks
+        public class TodoItem
+        {
+            public string Name { get; set; }
+            public string Description { get; set; }
+        }
+
         [HttpGet("GetTasks")]
-        public IActionResult GetTasks() => Ok(tasks); // Return tasks as JSON
+        public IActionResult GetTasks() => Ok(tasks);
 
-        // Endpoint to add a new task
         [HttpPost("AddTask")]
-        public IActionResult AddTask([FromBody] string task)
+        public IActionResult AddTask([FromBody] TodoItem task)
         {
-            tasks.Add(task); // Add task to the list
-            SaveTasks(); // Save updated task list to file
-            return Ok("Task added."); // Respond with success message
+            tasks.Add(task);
+            SaveTasks();
+            return Ok("Task added.");
         }
 
-        // Endpoint to delete a task
         [HttpPost("DeleteTask")]
-        public IActionResult DeleteTask([FromBody] string task)
+        public IActionResult DeleteTask([FromBody] TodoItem task)
         {
-            tasks.Remove(task); // Remove the specified task from the list
-            SaveTasks(); // Save updated task list to file
-            return Ok("Task removed."); // Respond with success message
+            tasks.RemoveAll(t => t.Name == task.Name && t.Description == task.Description);
+            SaveTasks();
+            return Ok("Task removed.");
         }
 
-        // Endpoint to reorder tasks
         [HttpPost("ReorderTasks")]
-        public IActionResult ReorderTasks([FromBody] List<string> newOrder)
+        public IActionResult ReorderTasks([FromBody] List<TodoItem> newOrder)
         {
-            tasks = newOrder; // Replace current task list with new order
-            SaveTasks(); // Save updated task list to file
-            return Ok("Tasks reordered."); // Respond with success message
+            tasks = newOrder;
+            SaveTasks();
+            return Ok("Tasks reordered.");
         }
 
-        // Helper method to save tasks to file
-        private static void SaveTasks() => System.IO.File.WriteAllText(filePath, JsonSerializer.Serialize(tasks));
+        private static void SaveTasks() =>
+            System.IO.File.WriteAllText(filePath, JsonSerializer.Serialize(tasks));
 
-        // Helper method to load tasks from file (if file exists)
-        private static List<string> LoadTasks() =>
-            System.IO.File.Exists(filePath) ? JsonSerializer.Deserialize<List<string>>(System.IO.File.ReadAllText(filePath))! : new List<string>();
+        private static List<TodoItem> LoadTasks() =>
+            System.IO.File.Exists(filePath)
+                ? JsonSerializer.Deserialize<List<TodoItem>>(System.IO.File.ReadAllText(filePath))!
+                : new List<TodoItem>();
     }
 }
