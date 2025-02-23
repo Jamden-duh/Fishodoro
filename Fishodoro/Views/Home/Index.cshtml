@@ -2,28 +2,28 @@
     ViewData["Title"] = "To-Do List";
 }
 
+<!-- Main container -->
 <div class="container text-center">
     <h2 class="display-4">To-Do List</h2>
 
-    <!-- Button to toggle the To-Do List pop-out -->
+    <!-- Toggle button for the To-Do List pop-out -->
     <button class="btn btn-primary fixed-left ml-3 mt-3" onclick="toggleTodoListPopup()">Toggle To-Do List</button>
 
-    <!-- Pop-out Panel for To-Do List -->
+    <!-- Pop-out Panel containing the To-Do List -->
     <div id="todoListPopup" class="todo-popup" style="display: none;">
         <div class="popup-content">
             <h3>To-Do List</h3>
 
-            <!-- Modal for adding a new task -->
+            <!-- Modal for adding new tasks -->
             <div id="taskModal" class="modal" tabindex="-1" role="dialog">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title">Add Task</h5>
-                            <button type="button" class="close" onclick="closeModal()" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
+                            <!-- Removed the X button -->
                         </div>
                         <div class="modal-body">
+                            <!-- Input fields for task name and description -->
                             <input type="text" id="taskInput" class="form-control mb-2" placeholder="New task">
                             <textarea id="taskDescription" class="form-control mb-2" placeholder="Task description" rows="3"></textarea>
                         </div>
@@ -35,10 +35,12 @@
                 </div>
             </div>
 
+            <!-- Container for the list of tasks -->
             <div class="task-list mt-3">
                 <ul id="todoList" class="list-group"></ul>
             </div>
 
+            <!-- Add task button container -->
             <div class="add-task-container">
                 <button class="btn btn-success" onclick="openModal()">Add Task</button>
             </div>
@@ -46,7 +48,9 @@
     </div>
 </div>
 
+<!-- Styles for the To-Do List components -->
 <style>
+    /* Main popup container */
     .todo-popup {
         position: fixed;
         top: 50px;
@@ -61,6 +65,7 @@
         overflow: hidden;
     }
 
+    /* Flex container for popup content */
     .popup-content {
         display: flex;
         flex-direction: column;
@@ -68,6 +73,7 @@
         position: relative;
     }
 
+    /* Scrollable task list container */
     .task-list {
         flex-grow: 1;
         overflow-y: auto;
@@ -77,13 +83,32 @@
         background: white;
     }
 
+    /* Individual task item styling */
     .list-group-item {
         word-wrap: break-word;
         overflow-wrap: break-word;
         white-space: normal;
         padding: 10px;
+        cursor: move; /* Indicates draggable */
+        transition: all 0.3s ease; /* Smooth transitions */
+        background-color: white; /* Default background */
+        border: 1px solid #dee2e6; /* Default border */
+        margin-bottom: 5px; /* Space between tasks */
     }
 
+        /* Hover effect for list items */
+        .list-group-item:hover {
+            background-color: #f8f9fa;
+            transform: translateX(5px);
+        }
+
+        /* Dragging styles */
+        .list-group-item.dragging {
+            background-color: #e9ecef; /* Greyed-out background */
+            border: 1px solid #dee2e6; /* Keep the border consistent */
+        }
+
+    /* Modal styling */
     .modal {
         display: none;
         position: fixed;
@@ -101,13 +126,16 @@
         max-width: 400px;
     }
 
+    /* Checkbox styling */
     .delete-checkbox {
         margin-right: 10px;
         vertical-align: top;
         margin-top: 3px;
         flex-shrink: 0;
+        cursor: pointer; /* Pointer cursor for checkbox */
     }
 
+    /* Toggle button positioning */
     .fixed-left {
         position: fixed;
         left: 10px;
@@ -115,6 +143,7 @@
         z-index: 9999;
     }
 
+    /* Add task button container */
     .add-task-container {
         position: absolute;
         bottom: 0;
@@ -126,20 +155,23 @@
         border-top: 1px solid #ddd;
     }
 
+    /* Task content layout */
     .task-content {
         display: flex;
         width: 100%;
-        min-width: 0; /* Allows flex items to shrink below content size */
+        min-width: 0;
     }
 
+    /* Task text container */
     .task-text {
         flex-grow: 1;
         text-align: left;
         display: flex;
         flex-direction: column;
-        min-width: 0; /* Allows content to wrap */
+        min-width: 0;
     }
 
+    /* Task name styling */
     .task-name {
         font-weight: bold;
         margin-bottom: 2px;
@@ -147,6 +179,7 @@
         overflow-wrap: break-word;
     }
 
+    /* Task description styling */
     .task-description {
         font-size: 0.9em;
         color: #666;
@@ -154,6 +187,7 @@
         overflow-wrap: break-word;
     }
 
+    /* Remove bottom margin from task list */
     #todoList {
         margin-bottom: 0;
         padding-bottom: 0;
@@ -161,21 +195,26 @@
 </style>
 
 <script>
+    // Array to store tasks
     let tasks = [];
 
+    // Toggle visibility of the todo list popup
     function toggleTodoListPopup() {
         const popup = document.getElementById("todoListPopup");
         popup.style.display = popup.style.display === "block" ? "none" : "block";
     }
 
+    // Open the add task modal
     function openModal() {
         document.getElementById("taskModal").style.display = "block";
     }
 
+    // Close the add task modal
     function closeModal() {
         document.getElementById("taskModal").style.display = "none";
     }
 
+    // Fetch and display tasks from localStorage
     async function fetchTasks() {
         const storedTasks = localStorage.getItem('tasks');
         tasks = storedTasks ? JSON.parse(storedTasks) : [];
@@ -183,11 +222,14 @@
         const list = document.getElementById("todoList");
         list.innerHTML = "";
 
+        // Create list items for each task
         tasks.forEach((task, index) => {
             const li = document.createElement("li");
             li.className = "list-group-item";
             li.setAttribute("data-index", index);
+            li.draggable = true; // Ensure the task is draggable
 
+            // Create task content with checkbox, name, and description
             li.innerHTML = `
                 <div class="task-content">
                     <input type="checkbox" class="delete-checkbox" onclick="toggleTaskRemoval(${index})">
@@ -198,15 +240,17 @@
                 </div>
             `;
 
-            li.draggable = true;
-            li.ondragstart = dragStart;
-            li.ondragover = dragOver;
-            li.ondrop = drop;
+            // Enable drag and drop functionality
+            li.addEventListener('dragstart', dragStart);
+            li.addEventListener('dragover', dragOver);
+            li.addEventListener('drop', drop);
+            li.addEventListener('dragend', dragEnd);
 
             list.appendChild(li);
         });
     }
 
+    // Add a new task
     function addTask() {
         const taskName = document.getElementById("taskInput").value.trim();
         const taskDescription = document.getElementById("taskDescription").value.trim();
@@ -216,55 +260,92 @@
             closeModal();
             fetchTasks();
 
+            // Clear input fields
             document.getElementById("taskInput").value = '';
             document.getElementById("taskDescription").value = '';
         }
     }
 
+    // Remove a task when checkbox is checked
     function toggleTaskRemoval(index) {
         const checkbox = document.querySelectorAll('.delete-checkbox')[index];
         if (checkbox.checked) {
-            tasks.splice(index, 1);
-            localStorage.setItem('tasks', JSON.stringify(tasks));
-            fetchTasks();
+            // Fade out animation before removal
+            const listItem = checkbox.closest('.list-group-item');
+            listItem.style.transition = 'all 0.3s ease';
+            listItem.style.opacity = '0';
+            listItem.style.transform = 'translateX(-100%)';
+
+            setTimeout(() => {
+                tasks.splice(index, 1);
+                localStorage.setItem('tasks', JSON.stringify(tasks));
+                fetchTasks();
+            }, 300);
         }
     }
 
-    let draggedIndex = null;
+    // Variables and functions for drag and drop functionality
+    let draggedElement = null;
 
-    function dragStart(event) {
-        draggedIndex = event.target.getAttribute("data-index");
+    function dragStart(e) {
+        draggedElement = e.target.closest('.list-group-item');
+        draggedElement.classList.add('dragging'); // Add greyed-out style
+        e.dataTransfer.setDragImage(new Image(), 0, 0); // Remove the default drag image
     }
 
-    function dragOver(event) {
-        event.preventDefault();
+    function dragOver(e) {
+        e.preventDefault();
+        const targetElement = e.target.closest('.list-group-item');
+        if (targetElement && targetElement !== draggedElement) {
+            const rect = targetElement.getBoundingClientRect();
+            const midY = rect.top + rect.height / 2;
+
+            if (e.clientY < midY) {
+                targetElement.parentNode.insertBefore(draggedElement, targetElement);
+            } else {
+                targetElement.parentNode.insertBefore(draggedElement, targetElement.nextSibling);
+            }
+        }
     }
 
-    async function drop(event) {
-        event.preventDefault();
-        const targetIndex = event.target.closest('.list-group-item').getAttribute("data-index");
+    function drop(e) {
+        e.preventDefault();
+        const targetElement = e.target.closest('.list-group-item');
 
-        if (draggedIndex !== null && targetIndex !== null && draggedIndex !== targetIndex) {
-            const movedTask = tasks.splice(draggedIndex, 1)[0];
+        if (!targetElement || !draggedElement) return;
+
+        const targetIndex = Array.from(targetElement.parentNode.children).indexOf(targetElement);
+        const sourceIndex = Array.from(draggedElement.parentNode.children).indexOf(draggedElement);
+
+        if (sourceIndex !== targetIndex) {
+            const movedTask = tasks.splice(sourceIndex, 1)[0];
             tasks.splice(targetIndex, 0, movedTask);
-
             localStorage.setItem('tasks', JSON.stringify(tasks));
             fetchTasks();
         }
     }
 
+    function dragEnd(e) {
+        draggedElement.classList.remove('dragging'); // Remove greyed-out style
+        draggedElement = null;
+    }
+
+    // Initialize tasks on page load
     fetchTasks();
 
-    document.addEventListener("click", function(event) {
+    // Event listener for closing popup when clicking outside
+    document.addEventListener("click", function (event) {
         const popup = document.getElementById("todoListPopup");
         const button = document.querySelector("button[onclick='toggleTodoListPopup()']");
         const popupContent = popup.querySelector('.popup-content');
 
+        // Check if click is on a task-related element
         const isTaskElement = event.target.closest('.task-content') ||
-                            event.target.closest('.delete-checkbox') ||
-                            event.target.closest('.task-name') ||
-                            event.target.closest('.task-description');
+            event.target.closest('.delete-checkbox') ||
+            event.target.closest('.task-name') ||
+            event.target.closest('.task-description');
 
+        // Close popup only if clicking outside and not on task elements
         if (!popupContent.contains(event.target) &&
             !button.contains(event.target) &&
             !isTaskElement) {
