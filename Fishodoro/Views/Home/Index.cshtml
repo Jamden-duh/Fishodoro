@@ -647,10 +647,36 @@
         .catch(error => console.error("Error fetching tasks:", error));
     }
 
-    // Run fetchTasks() when the page loads
-    window.onload = function () {
-        fetchTasks();
-    };
+    // Move all initialization code into a single window.onload function
+window.onload = function () {
+    // Load saved coin data
+    const savedCoins = localStorage.getItem("coins");
+    if (savedCoins !== null) {
+        coins = parseInt(savedCoins, 10);
+        updateCoinDisplay();
+    }
+
+    // Load saved settings
+    const soundEnabled = localStorage.getItem("soundEnabled");
+    const studyTime = localStorage.getItem("studyTime");
+    const breakTime = localStorage.getItem("breakTime");
+
+    if (soundEnabled !== null) {
+        document.getElementById("soundToggle").checked = soundEnabled === "true";
+    }
+    if (studyTime !== null) {
+        document.getElementById("studyTime").value = studyTime;
+    }
+    if (breakTime !== null) {
+        document.getElementById("breakTime").value = breakTime;
+    }
+
+    // Initialize tasks
+    fetchTasks();
+
+    // Apply initial coin display styles
+    adjustCoinDisplay();
+}
 
     // Add a new task
     function addTask() {
@@ -804,15 +830,6 @@
         fetchTasks(); // Refresh the task list
     });
     // ===== END OF NEW DRAG-AND-DROP CODE =====
-    
-    // Load saved coin data when the page loads
-    window.onload = function () {
-        const savedCoins = localStorage.getItem("coins");
-        if (savedCoins !== null) {
-            coins = parseInt(savedCoins, 10);
-            updateCoinDisplay();
-        }
-    };
 
     // Initialize tasks on page load
     fetchTasks();
@@ -909,23 +926,6 @@
             })
             .catch(error => console.error("Error updating timer settings:", error));
         }
-
-        // Load saved settings when the page loads
-        window.onload = function () {
-            const soundEnabled = localStorage.getItem("soundEnabled");
-            const studyTime = localStorage.getItem("studyTime");
-            const breakTime = localStorage.getItem("breakTime");
-
-            if (soundEnabled !== null) {
-                document.getElementById("soundToggle").checked = soundEnabled === "true";
-            }
-            if (studyTime !== null) {
-                document.getElementById("studyTime").value = studyTime;
-            }
-            if (breakTime !== null) {
-                document.getElementById("breakTime").value = breakTime;
-            }
-        };
             // ===== NEW CODE ENDS HERE =====
 </script>
 
