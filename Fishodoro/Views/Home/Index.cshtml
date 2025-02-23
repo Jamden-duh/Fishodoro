@@ -84,20 +84,6 @@
             button:hover {
                 background-color: #cb416b; /* dark pink for hovering over buttons */
             }
-
-        #restart-button img {
-            width: 30px; /* Make the image smaller */
-            height: 30px; /* Keep the image proportional */
-        }
-
-        #start-button img {
-            width: 30px; /* Make the image smaller */
-            height: 30px; /* Keep the image proportional */
-        }
-
-        #pause-button img {
-            width: 30px; /* Make the image smaller */
-            height: 30px; /* Keep the image proportional */
         }
     </style>
 </head>
@@ -189,12 +175,16 @@
         </script>
     </div>
 
-    <!-- Main Content Section -->
+    <!-- Container for placed items -->
+    <div id="placed-items-container" style="position: relative; width: 100%; height: 100%;"></div>
 
+    <!-- Hidden image for cursor-attached item -->
+    <img id="cursor-item" src="" alt="" style="position: absolute; pointer-events: none; opacity: 0.5; display: none;">
 
 
 </body>
 </html>
+
 
 <!-- Settings Button -->
 <button aria-label="settings button" class="button fixed-bottom-left" onclick="toggleSettingsPopup()">
@@ -754,7 +744,8 @@ window.onload = function () {
     // Apply initial coin display styles
     adjustCoinDisplay();
 
-            loadSettings();
+    loadSettings();
+    loadPlacedItems();
 }
 
 
@@ -826,16 +817,133 @@ window.onload = function () {
         }
 
 
-    // Buy an item from the shop
-    function buyItem(price) {
-        if (coins >= price) {
-            coins -= price;
-            updateCoinDisplay();
-            alert(`You bought an item for ${price} coins!`);
-        } else {
-            alert("Not enough coins!");
-        }
+            // Array to store placed items
+        let placedItems = [];
+
+        // Variable to track the currently attached item
+        let cursorItem = {
+            imageSrc: null,
+            x: 0,
+            y: 0
+        };
+
+        // Variable to track if an item was just purchased
+let justPurchased = false;
+
+// Function to handle buying an item
+function buyItem(price) {
+    if (coins >= price) {
+        coins -= price;
+        updateCoinDisplay();
+
+        // Attach the purchased item to the cursor
+        const itemImage = getItemImage(price); // Get the image source based on price
+        attachItemToCursor(itemImage);
+
+        // Set the justPurchased flag to true
+        justPurchased = true;
+
+        // Reset the flag after a short delay
+        setTimeout(() => {
+            justPurchased = false;
+        }, 100); // 100ms delay
+    } else {
+        alert("Not enough coins!");
     }
+}
+
+        // Function to get the image source based on the item price
+        function getItemImage(price) {
+            const itemImages = {
+                10: "~/images/One Rock.jpg",
+                20: "~/images/Two Rocks.jpg",
+                30: "~/images/Three Rocks.jpg",
+                40: "~/images/Cattail.jpg",
+                50: "~/images/Double Lilypad.jpg",
+                60: "~/images/Lilypad with frog.jpg",
+                70: "~/images/Lotus Lilypad.jpg",
+                80: "~/images/Lavender.jpg"
+            };
+            return itemImages[price];
+        }
+
+        // Function to attach an item to the cursor
+        function attachItemToCursor(imageSrc) {
+            cursorItem.imageSrc = imageSrc;
+            const cursorItemElement = document.getElementById('cursor-item');
+            cursorItemElement.src = imageSrc;
+            cursorItemElement.style.display = 'block';
+
+            // Update the cursor item position on mouse move
+            document.addEventListener('mousemove', updateCursorItemPosition);
+        }
+
+        // Function to update the cursor-attached item's position
+        function updateCursorItemPosition(event) {
+            const cursorItemElement = document.getElementById('cursor-item');
+            cursorItemElement.style.left = `${event.clientX}px`;
+            cursorItemElement.style.top = `${event.clientY}px`;
+        }
+
+        // Function to place the item on the screen
+        function placeItem(event) {
+            if (cursorItem.imageSrc) {
+                // Create a new image element for the placed item
+                const placedItem = document.createElement('img');
+                placedItem.src = cursorItem.imageSrc;
+                placedItem.style.position = 'absolute';
+                placedItem.style.left = `${event.clientX}px`;
+                placedItem.style.top = `${event.clientY}px`;
+                placedItem.style.opacity = '1'; // Full opacity when placed
+
+                // Add the placed item to the container
+                document.getElementById('placed-items-container').appendChild(placedItem);
+
+                // Save the placed item's data
+                placedItems.push({
+                    imageSrc: cursorItem.imageSrc,
+                    x: event.clientX,
+                    y: event.clientY
+                });
+
+                // Save placed items to local storage
+                localStorage.setItem('placedItems', JSON.stringify(placedItems));
+
+                // Reset the cursor-attached item
+                resetCursorItem();
+            }
+        }
+
+        // Function to reset the cursor-attached item
+        function resetCursorItem() {
+            cursorItem.imageSrc = null;
+            const cursorItemElement = document.getElementById('cursor-item');
+            cursorItemElement.style.display = 'none';
+            document.removeEventListener('mousemove', updateCursorItemPosition);
+        }
+
+        // Function to load placed items from local storage
+        function loadPlacedItems() {
+            const savedItems = localStorage.getItem('placedItems');
+            if (savedItems) {
+                placedItems = JSON.parse(savedItems);
+
+                // Recreate the placed items on the screen
+                placedItems.forEach(item => {
+                    const placedItem = document.createElement('img');
+                    placedItem.src = item.imageSrc;
+                    placedItem.style.position = 'absolute';
+                    placedItem.style.left = `${item.x}px`;
+                    placedItem.style.top = `${item.y}px`;
+                    placedItem.style.opacity = '1';
+
+                    document.getElementById('placed-items-container').appendChild(placedItem);
+                });
+            }
+        }
+
+        // Add event listener for left-click to place items
+        document.addEventListener('click', placeItem);
 
     // Update the coin display
     function updateCoinDisplay() 
