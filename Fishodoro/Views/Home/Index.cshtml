@@ -5,6 +5,38 @@
 
     
 
+<!-- Settings Button -->
+<button aria-label="settings button" class="button fixed-bottom-left" onclick="toggleSettingsPopup()">
+    <img src="~/images/settings.png" alt="Settings">
+</button>
+
+<!-- Settings Popup -->
+<div id="settingsPopup" class="settings-popup">
+    <div class="popup-content">
+        <h3>Settings</h3>
+        <!-- Sound Toggle -->
+        <div class="setting-item">
+            <label for="soundToggle">Sound:</label>
+            <label class="switch">
+                <input type="checkbox" id="soundToggle" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
+        <!-- Custom Study Time Input -->
+        <div class="setting-item">
+            <label for="studyTime">Study Time (minutes):</label>
+            <input type="number" id="studyTime" min="1" max="60" value="25">
+        </div>
+        <!-- Custom Break Time Input -->
+        <div class="setting-item">
+            <label for="breakTime">Break Time (minutes):</label>
+            <input type="number" id="breakTime" min="1" max="60" value="5">
+        </div>
+        <!-- Save Button -->
+        <button class="btn btn-primary" onclick="saveSettings()">Save</button>
+    </div>
+</div>
+
 <!-- Main container -->
 <div class="container text-center">
 
@@ -340,6 +372,93 @@
         font-size: 20px;
         color: #333;
     }
+
+        /* Settings Button */
+        .fixed-bottom-left {
+            position: fixed;
+            left: 10px;
+            bottom: 10px;
+            z-index: 9999;
+        }
+
+        /* Settings Popup */
+        .settings-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            background-color: #fff;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            border-radius: 8px;
+            z-index: 9999;
+            display: none; /* Initially hidden */
+        }
+
+        /* Setting Item */
+        .setting-item {
+            margin-bottom: 15px;
+        }
+
+            .setting-item label {
+                display: block;
+                margin-bottom: 5px;
+                font-weight: bold;
+            }
+
+            .setting-item input[type="number"] {
+                width: 100%;
+                padding: 5px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+            }
+
+        /* Switch Button */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+            .switch input {
+                opacity: 0;
+                width: 0;
+                height: 0;
+            }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.4s;
+            border-radius: 34px;
+        }
+
+            .slider:before {
+                position: absolute;
+                content: "";
+                height: 26px;
+                width: 26px;
+                left: 4px;
+                bottom: 4px;
+                background-color: white;
+                transition: 0.4s;
+                border-radius: 50%;
+            }
+
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+
+            input:checked + .slider:before {
+                transform: translateX(26px);
+            }
 </style>
 
 <script>
@@ -624,6 +743,69 @@
     coins += amount;
     updateCoinDisplay();
     }
+
+            // ===== NEW CODE STARTS HERE =====
+                    // Toggle settings popup visibility
+        function toggleSettingsPopup() {
+            const popup = document.getElementById("settingsPopup");
+            if (popup.style.display === "none" || popup.style.display === "") {
+                popup.style.display = "block";
+            } else {
+                popup.style.display = "none";
+            }
+        }
+
+        // Save settings
+        function saveSettings() {
+            const soundEnabled = document.getElementById("soundToggle").checked;
+            const studyTime = document.getElementById("studyTime").value;
+            const breakTime = document.getElementById("breakTime").value;
+
+            // Save settings to localStorage
+            localStorage.setItem("soundEnabled", soundEnabled);
+            localStorage.setItem("studyTime", studyTime);
+            localStorage.setItem("breakTime", breakTime);
+
+            // Update the timer (if applicable)
+            updateTimerSettings(studyTime, breakTime);
+
+            // Close the popup
+            toggleSettingsPopup();
+        }
+
+        // Update timer settings (example function, modify as needed)
+        function updateTimerSettings(studyTime, breakTime) {
+            console.log("Updating timer settings:", { studyTime, breakTime });
+            // Send new settings to the backend or update the timer logic
+            fetch("/api/timer/updateSettings", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ studyTime, breakTime })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Timer settings updated:", data);
+            })
+            .catch(error => console.error("Error updating timer settings:", error));
+        }
+
+        // Load saved settings when the page loads
+        window.onload = function () {
+            const soundEnabled = localStorage.getItem("soundEnabled");
+            const studyTime = localStorage.getItem("studyTime");
+            const breakTime = localStorage.getItem("breakTime");
+
+            if (soundEnabled !== null) {
+                document.getElementById("soundToggle").checked = soundEnabled === "true";
+            }
+            if (studyTime !== null) {
+                document.getElementById("studyTime").value = studyTime;
+            }
+            if (breakTime !== null) {
+                document.getElementById("breakTime").value = breakTime;
+            }
+        };
+            // ===== NEW CODE ENDS HERE =====
 </script>
 
 

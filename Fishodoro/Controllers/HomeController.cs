@@ -71,9 +71,53 @@ namespace Fishodoro.Controllers
             }
         }
     }
+
+    public class TimerController : ControllerBase
+    {
+        private static Fishodoro timer = new Fishodoro(true); // Study timer as default
+
+        // Get the current timer display (mm:ss)
+        [HttpGet("get")]
+        public IActionResult GetTimer()
+        {
+            return Ok(new { time = timer.Display });
+        }
+
+        // Start the timer
+        [HttpPost("start")]
+        public IActionResult StartTimer()
+        {
+            // Start the timer (if it's already finished, reset it)
+            if (timer.Done)
+            {
+                timer = new Fishodoro(true); // Restart with a new 25-minute study timer
+            }
+            timer.Start();  // Start the timer
+            return Ok(new { message = "Timer started" });
+        }
+
+        // Pause the timer
+        [HttpPost("pause")]
+        public IActionResult PauseTimer()
+        {
+            timer.Pause();  // Pause the timer
+            return Ok(new { message = "Timer paused" });
+        }
+
+        // Update timer settings
+        [HttpPost("updateSettings")]
+        public IActionResult UpdateTimerSettings([FromBody] TimerSettings settings)
+        {
+            // Update the timer logic with the new settings
+            timer.UpdateSettings(settings.StudyTime, settings.BreakTime);
+            return Ok(new { message = "Timer settings updated" });
+        }
+
+        // Timer settings model
+        public class TimerSettings
+        {
+            public int StudyTime { get; set; }
+            public int BreakTime { get; set; }
+        }
+    }
 }
-    
-
-
-
-
