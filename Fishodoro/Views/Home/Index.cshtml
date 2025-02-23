@@ -52,12 +52,12 @@
 
         /* Study timer color */
         .study-timer {
-            color: saddlebrown;
+            color: green;
         }
 
         /* Break timer color */
         .break-timer {
-            color: saddlebrown;
+            color: red;
         }
 
         /* Container for Start and Pause buttons */
@@ -108,6 +108,26 @@
             display: none; /* Hidden by default */
         }
 
+
+        #clear-items-button {
+            position: fixed;
+            bottom: 20px; /* Distance from the bottom */
+            left: 50%; /* Center horizontally */
+            transform: translateX(-50%); /* Adjust for the button's width */
+            padding: 10px 20px;
+            background-color: #ff4444; /* Red color for emphasis */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 1000; /* Ensure it's above other elements */
+            font-size: 16px; /* Adjust font size as needed */
+        }
+
+            #clear-items-button:hover {
+                background-color: #cc0000; /* Darker red on hover */
+            }
+
         /* Placed items container */
         #placed-items-container {
             position: relative;
@@ -116,6 +136,9 @@
     </style>
 </head>
 <body>
+
+    <div id="placed-items-container"></div>
+
     <!-- Banner Section -->
     <div id="banner">
         <h1>Fishodoro Timer</h1>
@@ -130,8 +153,6 @@
         <button aria-label="shop button" class="button fixed-right mr-3 mt-3" onclick="toggleShopPopup()">
             <img src="~/images/shop.png" alt="Shop">
         </button>
-
-        
     </div>
 
     <!-- Button Container for Start and Pause -->
@@ -145,6 +166,7 @@
         <button id="pause-button">
             <img src="~/images/pause.png" />
         </button>
+        <button id="clear-items-button">Clear All Items</button>
     </div>
 
         <script>
@@ -205,6 +227,10 @@
         </script>
     </div>
 
+    <!-- Main Content Section -->
+
+
+
 </body>
 </html>
 
@@ -240,11 +266,11 @@
         <!-- login -->
         @if (User.Identity.IsAuthenticated)
         {
-            <a class ="auth0" id="qsLogoutBtn" asp-controller="Account" asp-action="Logout">Logout</a>
+            <a id="qsLogoutBtn" asp-controller="Account" asp-action="Logout">Logout</a>
         }
         else
         {
-            <a class="auth0" id="qsLoginBtn" asp-controller="Account" asp-action="Login">Login</a>
+            <a id="qsLoginBtn" asp-controller="Account" asp-action="Login">Login</a>
         }
     </div>
 </div>
@@ -252,9 +278,7 @@
 <!-- Main container -->
 <div class="container text-center">
 
-    
    
-
     @* Display timer here instead of welcome text *@
 
     <!-- Coin display in the bottom right corner -->
@@ -306,20 +330,20 @@
             <h3>Shop</h3>
             <div class="shop-items-scroll">
                 <div class="shop-column">
-                    <button class="shop-item" onclick="buyItem(10)">
-                        <img src="~/images/One Rock.png" alt="Item 1">
+                    <button class="shop-item" onclick="buyItem(10, '/images/One Rock.jpg')">
+                        <img src="~/images/One Rock.jpg" alt="Item 1">
                         <div class="item-price">10</div>
                     </button>
-                    <button class="shop-item" onclick="buyItem(20)">
-                        <img src="~/images/Two Rocks.png" alt="Item 2">
+                    <button class="shop-item" onclick="buyItem(20, '/images/Two Rocks.jpg')">
+                        <img src="~/images/Two Rocks.jpg" alt="Item 2">
                         <div class="item-price">20</div>
                     </button>
-                    <button class="shop-item" onclick="buyItem(30)">
-                        <img src="~/images/Three Rocks.png" alt="Item 3">
+                    <button class="shop-item" onclick="buyItem(30, '/images/Three Rocks.jpg')">
+                        <img src="~/images/Three Rocks.jpg" alt="Item 3">
                         <div class="item-price">30</div>
                     </button>
-                    <button class="shop-item" onclick="buyItem(40)">
-                        <img src="~/images/Cattail.png" alt="Item 4">
+                    <button class="shop-item" onclick="buyItem(40, '/images/Cattail.jpg')">
+                        <img src="~/images/Cattail.jpg" alt="Item 4">
                         <div class="item-price">40</div>
                     </button>
                     <button class="shop-item" onclick="buyItem(40)">
@@ -431,9 +455,9 @@
         flex-grow: 1;
         overflow-y: auto;
         margin-bottom: 60px;
-        border: 1px solid #ddd;
+        border: 1px solid #ffc0cb;
         padding: 5px;
-        background: white;
+        background: #ffc0cb; /*lighter pink to match rest of theme*/
     }
 
     /* ===== Updated Task List Styles ===== */
@@ -537,7 +561,7 @@
         align-items: center;
         padding: 15px; /* Make buttons bigger */
         border: 1px solid #ddd;
-        background-color: #f9f9f9;
+        background-color: #ffc0cb; /*light pink to match theme*/
         border-radius: 8px;
         cursor: pointer;
         transition: background-color 0.3s ease;
@@ -554,7 +578,7 @@
         }
 
         .shop-item:hover {
-            background-color: #e9ecef;
+            background-color: #cb416b;  /*darker pink like other icon hovers*/
         }
 
     .item-price {
@@ -569,23 +593,17 @@
         right: 20px;
         display: flex;
         align-items: center;
-        @*background-color: rgba(255, 255, 255, 0.9);
+        background-color: #ffc0cb;
         padding: 10px;
         border-radius: 8px;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        z-index: 9999;*@
-
-        background: none;
-        border: none;
-        padding: 0;
-        cursor: pointer;
-        outline: none;
+        z-index: 9999;
     }
 
     /* Coin icon styling */
     .coin-icon {
-        width: 60px;
-        height: 60px;
+        width: 30px;
+        height: 30px;
         margin-right: 10px;
     }
 
@@ -635,12 +653,6 @@
                 border: 1px solid #ddd;
                 border-radius: 4px;
             }
-
-        /* log in links */
-        .auth0{
-            position: relative;
-            color: green;
-        }
 
         /* Switch Button */
         .switch {
@@ -785,7 +797,12 @@ window.onload = function () {
     adjustCoinDisplay();
 
             loadSettings();
-}
+                            // Load placed items
+            loadItemsFromLocalStorage();
+
+            // Add event listener for the "Clear All Items" button
+            document.getElementById('clear-items-button').addEventListener('click', clearAllItems) 
+        }
 
 
     // Add a new task
@@ -856,16 +873,114 @@ window.onload = function () {
         }
 
 
-    // Buy an item from the shop
-    function buyItem(price) {
-        if (coins >= price) {
-            coins -= price;
-            updateCoinDisplay();
-            alert(`You bought an item for ${price} coins!`);
-        } else {
-            alert("Not enough coins!");
+                    let currentItem = null;
+
+        function buyItem(price, imageSrc) {
+            if (coins >= price) {
+                coins -= price;
+                updateCoinDisplay();
+                currentItem = imageSrc;
+
+                // Create a new image element and attach it to the cursor
+                const cursorItem = document.createElement('img');
+                cursorItem.id = 'cursor-item';
+                cursorItem.src = imageSrc;
+                cursorItem.style.opacity = '0.5';
+                cursorItem.style.position = 'absolute';
+                cursorItem.style.pointerEvents = 'none';
+                cursorItem.style.display = 'block';
+                cursorItem.style.width = '100px'; // Set a fixed width
+                cursorItem.style.height = '100px'; // Set a fixed height
+                document.body.appendChild(cursorItem);
+
+                // Move the image with the cursor
+                document.addEventListener('mousemove', moveCursorItem);
+            } else {
+                alert("Not enough coins!");
+            }
         }
-    }
+
+        function moveCursorItem(e) {
+            const cursorItem = document.getElementById('cursor-item');
+            if (cursorItem) {
+                // Center the image on the cursor
+                const offsetX = cursorItem.offsetWidth / 2;
+                const offsetY = cursorItem.offsetHeight / 2;
+                cursorItem.style.left = `${e.clientX - offsetX}px`;
+                cursorItem.style.top = `${e.clientY - offsetY}px`;
+            }
+        }
+
+                document.addEventListener('contextmenu', function(e) {
+            e.preventDefault(); // Prevent the default context menu
+
+            if (currentItem) {
+                // Create a new image element for the placed item
+                const placedItem = document.createElement('img');
+                placedItem.src = currentItem;
+                placedItem.style.position = 'absolute';
+                placedItem.style.width = '100px'; // Set a fixed width
+                        placedItem.style.height = '100px'; // Set a fixed height
+
+                // Calculate the offset to center the image on the cursor
+                const offsetX = 50; 
+                const offsetY = 50;
+
+                // Adjust the position to center the image on the cursor
+                placedItem.style.left = `${e.clientX - offsetX}px`;
+                placedItem.style.top = `${e.clientY - offsetY}px`;
+
+                // Add the placed item to the container
+                document.getElementById('placed-items-container').appendChild(placedItem);
+
+                // Save the item and its position to localStorage
+                saveItemToLocalStorage(currentItem, e.clientX - offsetX, e.clientY - offsetY);
+
+                // Remove the cursor item
+                const cursorItem = document.getElementById('cursor-item');
+                if (cursorItem) {
+                    cursorItem.remove();
+                }
+                currentItem = null;
+            }
+        });
+
+                function clearAllItems() {
+            // Confirm with the user before clearing
+            const confirmClear = confirm("Are you sure you want to clear all placed items?");
+            if (!confirmClear) return;
+
+            // Clear the placed items from the DOM
+            const placedItemsContainer = document.getElementById('placed-items-container');
+            placedItemsContainer.innerHTML = ''; // Remove all child elements
+
+            // Clear the placed items from localStorage
+            localStorage.removeItem('placedItems');
+
+            // Optional: Notify the user
+            alert("All placed items have been cleared.");
+        }
+
+                function saveItemToLocalStorage(imageSrc, x, y) {
+            const items = JSON.parse(localStorage.getItem('placedItems') || '[]');
+            items.push({ imageSrc, x, y });
+            localStorage.setItem('placedItems', JSON.stringify(items));
+        }
+
+        function loadItemsFromLocalStorage() {
+            const items = JSON.parse(localStorage.getItem('placedItems') || '[]');
+            items.forEach(item => {
+                const placedItem = document.createElement('img');
+                placedItem.src = item.imageSrc;
+                placedItem.style.position = 'absolute';
+                placedItem.style.width = '100px'; // Set a fixed width
+                placedItem.style.height = '100px'; // Set a fixed height
+                placedItem.style.left = `${item.x}px`;
+                placedItem.style.top = `${item.y}px`;
+                document.getElementById('placed-items-container').appendChild(placedItem);
+            });
+        }
+
 
     // Update the coin display
     function updateCoinDisplay() 
