@@ -3,17 +3,7 @@
     @* forces first part of tab name here? *@
 }
 
-    <button onclick="addTestCoins(100)">Add 100 Coins</button>
-=======
-    <!-- Toggle button for the To-Do List pop-out -->
-    <button aria-label="todo button" class="button fixed-left ml-3 mt-3" onclick="toggleTodoListPopup()">
-        <img src="~/images/todo.png" alt="Shop">
-    </button>
-
-    <!-- Toggle button for the Shop pop-out -->
-    <button aria-label="shop button" class="button fixed-right mr-3 mt-3" onclick="toggleShopPopup()">
-        <img src="~/images/shop.png" alt="Shop">
-    </button>
+    
 
 <!-- Main container -->
 <div class="container text-center">
@@ -652,11 +642,28 @@
             background-color: #ffc0cb; /* Pale pink background */
             color: brown; /* White text */
             text-align: center;
-            padding: 50px 20;
+            padding: 10px 0;
             font-size: 1.5em;
             font-weight: bold;
             box-shadow: 0px 4px 2px -2px gray; /* Slight shadow under the banner */
+            width: 100%;
+            position: relative; /* For positioning the buttons */
         }
+
+            .banner-button img {
+                width: 100%;
+                height: 100%;
+            }
+
+            /* To-Do Button Position */
+            .todo-button {
+                left: 10px; /* Position To-Do button on the left */
+            }
+
+            /* Shop Button Position */
+            .shop-button {
+                right: 10px; /* Position Shop button on the right */
+            }
 
         /* Timer Display Styles */
         #timer-display {
@@ -679,7 +686,7 @@
         }
 
         button:hover {
-            background-color: #45a049;
+            background-color: #cb416b; /*dark pink for hovering over buttons*/
         }
     </style>
 </head>
@@ -687,15 +694,22 @@
     <!-- Banner Section -->
     <div id="banner">
         <h1>Fishodoro Timer</h1>
-    <div id="timer-display">25:00</div>
+    <div id="timer-display">25:00</div>             <!--think i found the fucking issue-->
     <button id="start-button">Start</button>
     <button id="pause-button">Pause</button>
 
+            <button onclick="addTestCoins(100)">Add 100 Coins</button>
+
     <!-- Toggle button for the To-Do List pop-out -->
-    <button class="btn btn-primary fixed-left ml-3 mt-3" onclick="toggleTodoListPopup()">Toggle To-Do List</button>
+    <button aria-label="todo button" class="button fixed-left ml-3 mt-3" onclick="toggleTodoListPopup()">
+        <img src="~/images/todo.png" alt="Shop">
+    </button>
 
     <!-- Toggle button for the Shop pop-out -->
-    <button class="btn btn-success fixed-right mr-3 mt-3" onclick="toggleShopPopup()">Toggle Shop</button>
+    <button aria-label="shop button" class="button fixed-right mr-3 mt-3" onclick="toggleShopPopup()">
+        <img src="~/images/shop.png" alt="Shop">
+    </button>
+   
     <script>
         // Fetch the timer data from the server every second
         function updateTimer() {
