@@ -9,10 +9,12 @@
     @* Display timer here instead of welcome text *@
 
     <!-- Toggle button for the To-Do List pop-out -->
-    <button class="btn btn-primary fixed-left ml-3 mt-3" onclick="toggleTodoListPopup()">Toggle To-Do List</button>
+    <button aria-label="todo button" class="button fixed-left ml-3 mt-3" onclick="toggleTodoListPopup()">
+        <img src="~/images/todo.png" alt="Shop">
+    </button>
 
     <!-- Toggle button for the Shop pop-out -->
-    <button class="shop-button fixed-right mr-3 mt-3" onclick="toggleShopPopup()">
+    <button aria-label="shop button" class="button fixed-right mr-3 mt-3" onclick="toggleShopPopup()">
         <img src="~/images/shop.png" alt="Shop">
     </button>
 
@@ -157,8 +159,8 @@
         z-index: 9999;
     }
 
-    /* Shop button styling */
-    .shop-button {
+    /* Shop and To-Do button styling */
+    .button {
         background: none;
         border: none;
         padding: 0;
@@ -166,7 +168,7 @@
         outline: none;
     }
 
-    .shop-button img {
+    .button img {
         width: 50px;
         height: 50px;
     }
