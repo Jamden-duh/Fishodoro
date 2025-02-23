@@ -22,3 +22,8 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+@font-face {
+  font-family: 'Quintessential'; /* Choose a name for your font */
+  src: url('Fonts/Quintessential.ttf') format('truetype'); /* Path to your font file */
+}
