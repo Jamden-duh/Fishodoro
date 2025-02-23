@@ -4,7 +4,15 @@
 
 <!-- Main container -->
 <div class="container text-center">
-  
+
+    @if (User.Identity.IsAuthenticated)
+    {
+        <button><a id="qsLogoutBtn" asp-controller="Account" asp-action="Logout">Logout</a></button>
+    }
+    else
+    {
+        <button><a id="qsLoginBtn" asp-controller="Account" asp-action="Login">Login</a></button>
+    }
     <h2 class="display-4">Welcome to Fishcododotr!</Fishodoro></h2>
     @* Display timer here instead of welcome text *@
 
