@@ -8,6 +8,11 @@
     <!-- Button to toggle the To-Do List pop-out -->
     <button class="btn btn-primary fixed-top ml-3 mt-3" onclick="toggleTodoListPopup()">Toggle To-Do List</button>
 
+    <!-- Shop Button -->
+    <button id="shopButton" class="shop-button" onclick="shopButtonClick()">
+        <img src="/images/shop.png" alt="Shop" />
+    </button>
+
     <!-- Pop-out Panel for To-Do List -->
     <div id="todoListPopup" class="todo-popup">
         <div class="popup-content">
@@ -24,8 +29,7 @@
                             <h5 class="modal-title">Add Task</h5>
                             <button type="button" class="close" onclick="closeModal()" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
-                                <img></img>
-                            </button>
+                                <img src="/images/shop.png" alt="Shop"/>
                         </div>
                         <div class="modal-body">
                             <!-- Input for task name -->
@@ -64,6 +68,32 @@
         border-radius: 8px;
         z-index: 9999;
         overflow-y: auto;
+    }
+
+    /* Custom image button styling */
+    .shop-button {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        border: none;
+        background: none;
+        padding: 0;
+        cursor: pointer;
+        outline: none;
+    }
+
+    .shop-button img {
+        width: 50px;
+        height: 50px;
+        transition: transform 0.2s, border 0.2s;
+    }
+
+    .shop-button:hover img {
+        border: 2px solid #ff0000; /* Highlight with a red stroke on hover */
+    }
+
+    .shop-button:active img {
+        transform: scale(0.9); /* Decrease size when clicked */
     }
 
     /* Styling for task list container with scrolling */
@@ -113,6 +143,12 @@
         } else {
             popup.style.display = "block"; // If closed, open it
         }
+    }
+
+    //function to Handle button click
+    function shopButtonClick() {
+        // Add your custom logic for the button click here
+        console.log("Shop button clicked!");
     }
 
     // Function to open the modal for adding a task
