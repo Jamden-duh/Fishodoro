@@ -1,18 +1,27 @@
 ﻿@{
-    ViewData["Title"] = "To-Do List";
+    ViewData["Title"] = "Fishodoro";
 }
 
 <!-- Main container -->
 <div class="container text-center">
     <h2 class="display-4">Welcome to Fishodoro!</h2>
 
-
     <!-- Toggle button for the To-Do List pop-out -->
     <button class="btn btn-primary fixed-left ml-3 mt-3" onclick="toggleTodoListPopup()">Toggle To-Do List</button>
 
+    <!-- Toggle button for the Shop pop-out -->
+    <button class="btn btn-success fixed-right mr-3 mt-3" onclick="toggleShopPopup()">Toggle Shop</button>
+
+    <button onclick="addTestCoins(100)">Add 100 Coins</button>
+
+    <!-- Coin display in the bottom right corner -->
+    <div class="coin-display-fixed">
+        <img src="https://via.placeholder.com/30" alt="Coin Icon" class="coin-icon">
+        <span id="coinCount">0</span>
+    </div>
 
     <!-- Pop-out Panel containing the To-Do List -->
-    <div id="todoListPopup" class="todo-popup" style="display: none;">
+    <div id="todoListPopup" class="todo-popup">
         <div class="popup-content">
             <h3>To-Do List</h3>
 
@@ -22,7 +31,6 @@
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title">Add Task</h5>
-                            <!-- Removed the X button -->
                         </div>
                         <div class="modal-body">
                             <!-- Input fields for task name and description -->
@@ -48,16 +56,60 @@
             </div>
         </div>
     </div>
+
+    <!-- Pop-out Panel containing the Shop -->
+    <div id="shopPopup" class="shop-popup">
+        <div class="popup-content">
+            <h3>Shop</h3>
+            <div class="shop-items-scroll">
+                <div class="shop-column">
+                    <button class="shop-item" onclick="buyItem(10)">
+                        <img src="https://via.placeholder.com/50" alt="Item 1">
+                        <div class="item-price">10</div>
+                    </button>
+                    <button class="shop-item" onclick="buyItem(20)">
+                        <img src="https://via.placeholder.com/50" alt="Item 2">
+                        <div class="item-price">20</div>
+                    </button>
+                    <button class="shop-item" onclick="buyItem(30)">
+                        <img src="https://via.placeholder.com/50" alt="Item 3">
+                        <div class="item-price">30</div>
+                    </button>
+                    <button class="shop-item" onclick="buyItem(40)">
+                        <img src="https://via.placeholder.com/50" alt="Item 4">
+                        <div class="item-price">40</div>
+                    </button>
+                </div>
+                <div class="shop-column">
+                    <button class="shop-item" onclick="buyItem(50)">
+                        <img src="https://via.placeholder.com/50" alt="Item 5">
+                        <div class="item-price">50</div>
+                    </button>
+                    <button class="shop-item" onclick="buyItem(60)">
+                        <img src="https://via.placeholder.com/50" alt="Item 6">
+                        <div class="item-price">60</div>
+                    </button>
+                    <button class="shop-item" onclick="buyItem(70)">
+                        <img src="https://via.placeholder.com/50" alt="Item 7">
+                        <div class="item-price">70</div>
+                    </button>
+                    <button class="shop-item" onclick="buyItem(80)">
+                        <img src="https://via.placeholder.com/50" alt="Item 8">
+                        <div class="item-price">80</div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
-<!-- Styles for the To-Do List components -->
 <style>
     /* Main popup container */
-    .todo-popup {
+    .todo-popup, .shop-popup {
         position: fixed;
         top: 50px;
-        left: 10px;
-        width: 300px;
+        width: 400px; /* Wider to accommodate two columns */
         height: 500px;
         background-color: #fff;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
@@ -65,6 +117,32 @@
         border-radius: 8px;
         z-index: 9999;
         overflow: hidden;
+        display: none; /* Initially hidden */
+    }
+
+    /* Left-side popup */
+    .todo-popup {
+        left: 0; /* Open on the left side */
+    }
+
+    /* Right-side popup */
+    .shop-popup {
+        right: 0; /* Open on the right side */
+    }
+
+    /* Toggle button positioning */
+    .fixed-left {
+        position: fixed;
+        left: 10px;
+        top: 50px; /* Adjust this to move the button closer to the top */
+        z-index: 9999;
+    }
+
+    .fixed-right {
+        position: fixed;
+        right: 10px;
+        top: 50px; /* Adjust this to move the button closer to the top */
+        z-index: 9999;
     }
 
     /* Flex container for popup content */
@@ -76,7 +154,7 @@
     }
 
     /* Scrollable task list container */
-    .task-list {
+    .task-list, .shop-items-scroll {
         flex-grow: 1;
         overflow-y: auto;
         margin-bottom: 60px;
@@ -85,125 +163,101 @@
         background: white;
     }
 
-    /* Individual task item styling */
-    .list-group-item {
-        word-wrap: break-word;
-        overflow-wrap: break-word;
-        white-space: normal;
-        padding: 10px;
-        cursor: move; /* Indicates draggable */
-        transition: all 0.3s ease; /* Smooth transitions */
-        background-color: white; /* Default background */
-        border: 1px solid #dee2e6; /* Default border */
-        margin-bottom: 5px; /* Space between tasks */
+    /* Shop column for two-column layout */
+    .shop-items-scroll {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 10px;
     }
 
-        /* Hover effect for list items */
-        .list-group-item:hover {
-            background-color: #f8f9fa;
-            transform: translateX(5px);
-        }
+    .shop-column {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
 
-        /* Dragging styles */
-        .list-group-item.dragging {
-            background-color: #e9ecef; /* Greyed-out background */
-            border: 1px solid #dee2e6; /* Keep the border consistent */
-        }
-
-    /* Modal styling */
-    .modal {
-        display: none;
-        position: fixed;
-        z-index: 10000;
-        left: 0;
-        top: 0;
+    /* Individual shop item button styling */
+    .shop-item {
+        display: flex;
+        align-items: center;
+        padding: 15px; /* Make buttons bigger */
+        border: 1px solid #ddd;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
         width: 100%;
-        height: 100%;
-        overflow: auto;
-        background-color: rgba(0, 0, 0, 0.4);
+        justify-content: space-between;
     }
 
-    .modal-dialog {
-        margin: 15% auto;
-        max-width: 400px;
+        .shop-item img {
+            width: 60px;
+            height: 60px;
+            margin-right: 10px;
+        }
+
+        .shop-item:hover {
+            background-color: #e9ecef;
+        }
+
+    .item-price {
+        font-size: 1.1em;
+        color: #666;
     }
 
-    /* Checkbox styling */
-    .delete-checkbox {
-        margin-right: 10px;
-        vertical-align: top;
-        margin-top: 3px;
-        flex-shrink: 0;
-        cursor: pointer; /* Pointer cursor for checkbox */
-    }
-
-    /* Toggle button positioning */
-    .fixed-left {
+    /* Coin display styling */
+    .coin-display-fixed {
         position: fixed;
-        left: 10px;
-        top: 50px;
+        bottom: 20px;
+        right: 20px;
+        display: flex;
+        align-items: center;
+        background-color: rgba(255, 255, 255, 0.9);
+        padding: 10px;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         z-index: 9999;
     }
 
-    /* Add task button container */
-    .add-task-container {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        padding: 10px;
-        background-color: white;
-        text-align: center;
-        border-top: 1px solid #ddd;
+    /* Coin icon styling */
+    .coin-icon {
+        width: 30px;
+        height: 30px;
+        margin-right: 10px;
     }
 
-    /* Task content layout */
-    .task-content {
-        display: flex;
-        width: 100%;
-        min-width: 0;
-    }
-
-    /* Task text container */
-    .task-text {
-        flex-grow: 1;
-        text-align: left;
-        display: flex;
-        flex-direction: column;
-        min-width: 0;
-    }
-
-    /* Task name styling */
-    .task-name {
-        font-weight: bold;
-        margin-bottom: 2px;
-        word-wrap: break-word;
-        overflow-wrap: break-word;
-    }
-
-    /* Task description styling */
-    .task-description {
-        font-size: 0.9em;
-        color: #666;
-        word-wrap: break-word;
-        overflow-wrap: break-word;
-    }
-
-    /* Remove bottom margin from task list */
-    #todoList {
-        margin-bottom: 0;
-        padding-bottom: 0;
+    /* Coin amount styling */
+    #coinCount {
+        font-size: 20px;
+        color: #333;
     }
 </style>
 
 <script>
     // Array to store tasks
     let tasks = [];
+    let coins = 0;
 
     // Toggle visibility of the todo list popup
     function toggleTodoListPopup() {
         const popup = document.getElementById("todoListPopup");
-        popup.style.display = popup.style.display === "block" ? "none" : "block";
+        if (popup.style.display === "none" || popup.style.display === "") {
+            popup.style.display = "block";
+        } else {
+            popup.style.display = "none";
+        }
+    }
+
+    // Toggle visibility of the shop popup
+    function toggleShopPopup() {
+        const popup = document.getElementById("shopPopup");
+        if (popup.style.display === "none" || popup.style.display === "") {
+            popup.style.display = "block";
+        } else {
+            popup.style.display = "none";
+        }
     }
 
     // Open the add task modal
@@ -216,56 +270,75 @@
         document.getElementById("taskModal").style.display = "none";
     }
 
-    // Fetch and display tasks from localStorage
-    async function fetchTasks() {
-        const storedTasks = localStorage.getItem('tasks');
-        tasks = storedTasks ? JSON.parse(storedTasks) : [];
+    // Function to fetch and display tasks from the backend
+    function fetchTasks() {
+        fetch("/Todo/GetTasks")
+        .then(response => response.json())
+        .then(tasks => {
+            const list = document.getElementById("todoList");
+            list.innerHTML = ""; // Clear existing list
 
-        const list = document.getElementById("todoList");
-        list.innerHTML = "";
-
-        // Create list items for each task
-        tasks.forEach((task, index) => {
-            const li = document.createElement("li");
-            li.className = "list-group-item";
-            li.setAttribute("data-index", index);
-            li.draggable = true; // Ensure the task is draggable
-
-            // Create task content with checkbox, name, and description
-            li.innerHTML = `
-                <div class="task-content">
-                    <input type="checkbox" class="delete-checkbox" onclick="toggleTaskRemoval(${index})">
-                    <div class="task-text">
-                        <div class="task-name">${task.name}</div>
-                        <div class="task-description">${task.description}</div>
+            tasks.forEach((task, index) => {
+                const li = document.createElement("li");
+                li.className = "list-group-item";
+                li.setAttribute("data-index", index);
+                li.draggable = true;
+                li.innerHTML = `
+                    <div class="task-content">
+                        <input type="checkbox" class="delete-checkbox" onclick="toggleTaskRemoval(${index})">
+                        <div class="task-text">
+                            <div class="task-name">${task.name}</div>
+                            <div class="task-description">${task.description}</div>
+                        </div>
                     </div>
-                </div>
-            `;
+                `;
 
-            // Enable drag and drop functionality
-            li.addEventListener('dragstart', dragStart);
-            li.addEventListener('dragover', dragOver);
-            li.addEventListener('drop', drop);
-            li.addEventListener('dragend', dragEnd);
-
-            list.appendChild(li);
-        });
+                list.appendChild(li);
+            });
+        })
+        .catch(error => console.error("Error fetching tasks:", error));
     }
+
+    // Run fetchTasks() when the page loads
+    window.onload = function () {
+        fetchTasks();
+    };
 
     // Add a new task
     function addTask() {
-        const taskName = document.getElementById("taskInput").value.trim();
-        const taskDescription = document.getElementById("taskDescription").value.trim();
-        if (taskName) {
-            tasks.push({ name: taskName, description: taskDescription });
-            localStorage.setItem('tasks', JSON.stringify(tasks));
-            closeModal();
-            fetchTasks();
+    const taskName = document.getElementById("taskInput").value.trim();
+    const taskDescription = document.getElementById("taskDescription").value.trim();
 
-            // Clear input fields
-            document.getElementById("taskInput").value = '';
-            document.getElementById("taskDescription").value = '';
+    if (!taskName) {
+        alert("Task name is required!");
+        return;
+    }
+
+    const newTask = {
+        Name: taskName,
+        Description: taskDescription,
+        IsCompleted: false
+    };
+
+    fetch("/Todo/AddTask", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(newTask)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Failed to add task");
         }
+        return response.json();
+    })
+    .then(data => {
+        console.log("Task added:", data);
+        closeModal();
+        fetchTasks(); // Refresh the task list after adding
+    })
+    .catch(error => console.error("Error adding task:", error));
     }
 
     // Remove a task when checkbox is checked
@@ -283,75 +356,89 @@
                 localStorage.setItem('tasks', JSON.stringify(tasks));
                 fetchTasks();
             }, 300);
+
+            // Add coins when a task is checked off
+            coins += 10;
+            updateCoinDisplay();
         }
     }
 
-    // Variables and functions for drag and drop functionality
-    let draggedElement = null;
-
-    function dragStart(e) {
-        draggedElement = e.target.closest('.list-group-item');
-        draggedElement.classList.add('dragging'); // Add greyed-out style
-        e.dataTransfer.setDragImage(new Image(), 0, 0); // Remove the default drag image
-    }
-
-    function dragOver(e) {
-        e.preventDefault();
-        const targetElement = e.target.closest('.list-group-item');
-        if (targetElement && targetElement !== draggedElement) {
-            const rect = targetElement.getBoundingClientRect();
-            const midY = rect.top + rect.height / 2;
-
-            if (e.clientY < midY) {
-                targetElement.parentNode.insertBefore(draggedElement, targetElement);
-            } else {
-                targetElement.parentNode.insertBefore(draggedElement, targetElement.nextSibling);
-            }
+    // Buy an item from the shop
+    function buyItem(price) {
+        if (coins >= price) {
+            coins -= price;
+            updateCoinDisplay();
+            alert(`You bought an item for ${price} coins!`);
+        } else {
+            alert("Not enough coins!");
         }
     }
 
-    function drop(e) {
-        e.preventDefault();
-        const targetElement = e.target.closest('.list-group-item');
+    // Update the coin display
+    function updateCoinDisplay() 
+    {
+        document.getElementById("coinCount").innerText = coins;
+        localStorage.setItem("coins", coins); // Save coins to localStorage
+    }
 
-        if (!targetElement || !draggedElement) return;
 
-        const targetIndex = Array.from(targetElement.parentNode.children).indexOf(targetElement);
-        const sourceIndex = Array.from(draggedElement.parentNode.children).indexOf(draggedElement);
-
-        if (sourceIndex !== targetIndex) {
-            const movedTask = tasks.splice(sourceIndex, 1)[0];
-            tasks.splice(targetIndex, 0, movedTask);
-            localStorage.setItem('tasks', JSON.stringify(tasks));
-            fetchTasks();
+    // Load saved coin data when the page loads
+    window.onload = function () {
+        const savedCoins = localStorage.getItem("coins");
+        if (savedCoins !== null) {
+            coins = parseInt(savedCoins, 10);
+            updateCoinDisplay();
         }
-    }
-
-    function dragEnd(e) {
-        draggedElement.classList.remove('dragging'); // Remove greyed-out style
-        draggedElement = null;
-    }
+    };
 
     // Initialize tasks on page load
     fetchTasks();
 
-    // Event listener for closing popup when clicking outside
+    // Close popups when clicking outside
     document.addEventListener("click", function (event) {
-        const popup = document.getElementById("todoListPopup");
-        const button = document.querySelector("button[onclick='toggleTodoListPopup()']");
-        const popupContent = popup.querySelector('.popup-content');
+        const todoPopup = document.getElementById("todoListPopup");
+        const shopPopup = document.getElementById("shopPopup");
+        const todoButton = document.querySelector("button[onclick='toggleTodoListPopup()']");
+        const shopButton = document.querySelector("button[onclick='toggleShopPopup()']");
 
-        // Check if click is on a task-related element
-        const isTaskElement = event.target.closest('.task-content') ||
-            event.target.closest('.delete-checkbox') ||
-            event.target.closest('.task-name') ||
-            event.target.closest('.task-description');
+        if (!todoPopup.contains(event.target) && !todoButton.contains(event.target)) {
+            todoPopup.style.display = "none";
+        }
 
-        // Close popup only if clicking outside and not on task elements
-        if (!popupContent.contains(event.target) &&
-            !button.contains(event.target) &&
-            !isTaskElement) {
-            popup.style.display = "none";
+        if (!shopPopup.contains(event.target) && !shopButton.contains(event.target)) {
+            shopPopup.style.display = "none";
         }
     });
+
+    // Function to update the coin display based on screen width
+    function adjustCoinDisplay() {
+        const coinDisplay = document.querySelector('.coin-display-fixed');
+        const coinIcon = document.querySelector('.coin-icon');
+        const coinCount = document.getElementById('coinCount');
+
+        if (window.innerWidth <= 768) { // Check if the screen width is 768px or smaller
+            // Adjust styles for small screens (e.g., mobile or tablet)
+            coinDisplay.style.fontSize = '16px';
+            coinIcon.style.width = '25px';
+            coinIcon.style.height = '25px';
+            coinCount.style.fontSize = '16px';
+        } else {
+            // Revert to original styles for larger screens
+            coinDisplay.style.fontSize = '20px';
+            coinIcon.style.width = '30px';
+            coinIcon.style.height = '30px';
+            coinCount.style.fontSize = '20px';
+        }
+    }
+
+    // Call the function to apply the initial styles
+    adjustCoinDisplay();
+
+    // Listen for window resizing and adjust styles accordingly
+    window.addEventListener('resize', adjustCoinDisplay);
+
+    function addTestCoins(amount) {
+    coins += amount;
+    updateCoinDisplay();
+    }
 </script>
