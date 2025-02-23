@@ -1,11 +1,11 @@
-using System.Diagnostics;
+ using System.Diagnostics;
 using Fishodoro.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fishodoro.Controllers
 {
     public class HomeController : Controller
-    {
+    { 
         private readonly ILogger<HomeController> _logger;
         private int coinAmount = 100;
 
