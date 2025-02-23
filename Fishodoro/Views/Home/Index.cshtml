@@ -16,8 +16,6 @@
     <!-- Toggle button for the Shop pop-out -->
     <button class="btn btn-success fixed-right mr-3 mt-3" onclick="toggleShopPopup()">Toggle Shop</button>
 
-    <button onclick="addTestCoins(100)">Add 100 Coins</button>
-
     <!-- Coin display in the bottom right corner -->
     <div class="coin-display-fixed">
         <img src="https://via.placeholder.com/30" alt="Coin Icon" class="coin-icon">
@@ -175,6 +173,83 @@
         background: white;
     }
 
+    /* ===== Updated Task List Styles ===== */
+        /* Task list container */
+        .task-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            width: 100%; /* Ensure the list takes full width */
+            overflow-x: hidden; /* Prevent horizontal scrolling */
+        }
+
+        /* Individual task item */
+        .list-group-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid #ddd;
+            margin-bottom: 5px;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            transition: background-color 0.3s ease;
+            width: 100%; /* Ensure the task item takes full width */
+            box-sizing: border-box; /* Include padding and border in the width */
+        }
+
+            .list-group-item:hover {
+                background-color: #f1f1f1;
+            }
+
+        /* Checkbox styling */
+        .delete-checkbox {
+            width: 20px;
+            height: 20px;
+            margin-right: 15px;
+            cursor: pointer;
+            flex-shrink: 0; /* Prevent the checkbox from shrinking */
+        }
+
+        /* Task content container */
+        .task-content {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            min-width: 0; /* Allow text to wrap */
+        }
+
+        /* Task title and description container */
+        .task-text {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            min-width: 0; /* Allow text to wrap */
+            width: 100%; /* Ensure the text container takes full width */
+        }
+
+        /* Task title (bold and larger font) */
+        .task-name {
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 2px; /* Reduce spacing between title and description */
+            white-space: normal; /* Allow text to wrap */
+            word-break: break-word; /* Break long words if necessary */
+            width: 100%; /* Ensure the title takes full width */
+            text-align: left; /* Anchor text to the left */
+        }
+
+        /* Task description (smaller font) */
+        .task-description {
+            font-size: 0.9em;
+            color: #555;
+            white-space: normal; /* Allow text to wrap */
+            word-break: break-word; /* Break long words if necessary */
+            width: 100%; /* Ensure the description takes full width */
+            text-align: left; /* Anchor text to the left */
+            padding-left: 20px; /* Tabbed effect (indent description) */
+        }
+    /* ===== End of Updated Task List Styles ===== */
+
     /* Shop column for two-column layout */
     .shop-items-scroll {
         display: flex;
@@ -286,7 +361,7 @@
     }
 
     // Function to fetch and display tasks from the backend
-    function fetchTasks() {
+        function fetchTasks() {
         fetch("/Todo/GetTasks")
         .then(response => response.json())
         .then(tasks => {
@@ -297,10 +372,10 @@
                 const li = document.createElement("li");
                 li.className = "list-group-item";
                 li.setAttribute("data-index", index);
-                li.draggable = true;
+                li.draggable = true; // Ensure tasks are draggable
                 li.innerHTML = `
+                    <input type="checkbox" class="delete-checkbox" onclick="toggleTaskRemoval(${index})">
                     <div class="task-content">
-                        <input type="checkbox" class="delete-checkbox" onclick="toggleTaskRemoval(${index})">
                         <div class="task-text">
                             <div class="task-name">${task.name}</div>
                             <div class="task-description">${task.description}</div>
@@ -351,32 +426,41 @@
     .then(data => {
         console.log("Task added:", data);
         closeModal();
-        fetchTasks(); // Refresh the task list after adding
+        fetchTasks(); // Refresh the task list
+
+        // Clear input fields
+        document.getElementById("taskInput").value = "";
+        document.getElementById("taskDescription").value = "";
     })
     .catch(error => console.error("Error adding task:", error));
-    }
+}
 
-    // Remove a task when checkbox is checked
-    function toggleTaskRemoval(index) {
-        const checkbox = document.querySelectorAll('.delete-checkbox')[index];
-        if (checkbox.checked) {
-            // Fade out animation before removal
-            const listItem = checkbox.closest('.list-group-item');
-            listItem.style.transition = 'all 0.3s ease';
-            listItem.style.opacity = '0';
-            listItem.style.transform = 'translateX(-100%)';
+            // Remove a task when checkbox is checked
+        function toggleTaskRemoval(index) {
+            fetch("/Todo/ToggleTaskRemoval", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(index) // Send the task index to the backend
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Failed to remove task");
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("Task removed:", data);
+                fetchTasks(); // Refresh the task list
 
-            setTimeout(() => {
-                tasks.splice(index, 1);
-                localStorage.setItem('tasks', JSON.stringify(tasks));
-                fetchTasks();
-            }, 300);
-
-            // Add coins when a task is checked off
-            coins += 10;
-            updateCoinDisplay();
+                // Add 10 coins when a task is completed
+                coins += 10;
+                updateCoinDisplay(); // Update coins display
+            })
+            .catch(error => console.error("Error removing task:", error));
         }
-    }
+
 
     // Buy an item from the shop
     function buyItem(price) {
@@ -396,7 +480,73 @@
         localStorage.setItem("coins", coins); // Save coins to localStorage
     }
 
+    // ===== NEW DRAG-AND-DROP CODE =====
+    let draggedItem = null;
+    
+    document.addEventListener("dragstart", (e) => {
+    if (e.target.classList.contains("list-group-item")) {
+        draggedItem = e.target;
+        e.target.style.opacity = "0.5";
 
+        // ===== NEW CODE TO REMOVE GHOST IMAGE =====
+        const dragImage = new Image();
+        dragImage.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"; // Transparent 1x1 image
+        e.dataTransfer.setDragImage(dragImage, 0, 0); // Set the drag image
+        // ===== END OF NEW CODE =====
+    }
+    });
+    
+    document.addEventListener("dragend", (e) => {
+        if (draggedItem) {
+            draggedItem.style.opacity = "1";
+            draggedItem = null;
+        }
+    });
+    
+    document.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        const afterElement = getDragAfterElement(e.clientY);
+        const list = document.getElementById("todoList");
+        if (afterElement == null) {
+            list.appendChild(draggedItem);
+        } else {
+            list.insertBefore(draggedItem, afterElement);
+        }
+    });
+    
+    function getDragAfterElement(y) {
+        const draggableElements = [...document.querySelectorAll(".list-group-item:not(.dragging)")];
+        return draggableElements.reduce((closest, child) => {
+            const box = child.getBoundingClientRect();
+            const offset = y - box.top - box.height / 2;
+            if (offset < 0 && offset > closest.offset) {
+                return { offset, element: child };
+            } else {
+                return closest;
+            }
+        }, { offset: Number.NEGATIVE_INFINITY }).element;
+    }
+    
+    document.addEventListener("drop", async (e) => {
+        const taskElements = document.querySelectorAll(".list-group-item");
+        const newOrder = Array.from(taskElements).map((element, index) => ({
+            Name: element.querySelector(".task-name").innerText,
+            Description: element.querySelector(".task-description").innerText,
+            IsCompleted: false
+        }));
+    
+        await fetch("/Todo/ReorderTasks", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(newOrder)
+        });
+    
+        fetchTasks(); // Refresh the task list
+    });
+    // ===== END OF NEW DRAG-AND-DROP CODE =====
+    
     // Load saved coin data when the page loads
     window.onload = function () {
         const savedCoins = localStorage.getItem("coins");
