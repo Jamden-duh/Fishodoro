@@ -101,6 +101,8 @@
         <button aria-label="shop button" class="button fixed-right mr-3 mt-3" onclick="toggleShopPopup()">
             <img src="~/images/shop.png" alt="Shop">
         </button>
+
+        
     </div>
 
     <!-- Button Container for Start and Pause -->
@@ -168,10 +170,6 @@
         </script>
     </div>
 
-    <!-- Main Content Section -->
-
-
-
 </body>
 </html>
 
@@ -204,20 +202,22 @@
         </div>
         <!-- Save Button -->
         <button class="btn btn-primary" onclick="saveSettings()">Save</button>
+        <!-- login -->
+        @if (User.Identity.IsAuthenticated)
+        {
+            <a class ="auth0" id="qsLogoutBtn" asp-controller="Account" asp-action="Logout">Logout</a>
+        }
+        else
+        {
+            <a class="auth0" id="qsLoginBtn" asp-controller="Account" asp-action="Login">Login</a>
+        }
     </div>
 </div>
 
 <!-- Main container -->
 <div class="container text-center">
 
-    @if (User.Identity.IsAuthenticated)
-    {
-        <button><a id="qsLogoutBtn" asp-controller="Account" asp-action="Logout">Logout</a></button>
-    }
-    else
-    {
-        <button><a id="qsLoginBtn" asp-controller="Account" asp-action="Login">Login</a></button>
-    }
+    
    
 
     @* Display timer here instead of welcome text *@
@@ -586,6 +586,12 @@
                 border: 1px solid #ddd;
                 border-radius: 4px;
             }
+
+        /* log in links */
+        .auth0{
+            position: relative;
+            color: green;
+        }
 
         /* Switch Button */
         .switch {
