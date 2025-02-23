@@ -8,10 +8,34 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Fishodoro.styles.css" asp-append-version="true" />
+    <style>
+        @* css styling class for buttons *@
+        .button {
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .button img {
+            width: 50px;
+            height: 50px;
+        }
+
+        /* Toggle button positioning */
+        .fixed-right {
+            position: absolute;
+            right: 10px;
+            top: 50px;
+            z-index: 9999;
+        }
+    </style>
 </head>
+
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        @*<nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Fishodoro</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
@@ -19,21 +43,28 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    Home and boo (Privacy) buttons
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li> 
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">BOO</a>
+                        </li>
                     </ul>
                 </div>
             </div>
-        </nav>
+        </nav>*@
     </header>
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
+        <!--Button for shop icon-->
+        <button aria-label="shop button" class="button fixed-right" type="button" onclick="location.href='/Home/Index'">
+        @* the onclick piece uses in-line javascript to create the clicked functionality for this button
+            sends to file pathway "Home/Index"*@
+            <img src="~/images/shop.png" alt="Go Home" width="50" height="50">
+        </button>
         </main>
     </div>
 
