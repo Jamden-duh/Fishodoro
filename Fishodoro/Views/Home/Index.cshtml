@@ -12,7 +12,9 @@
     <button class="btn btn-primary fixed-left ml-3 mt-3" onclick="toggleTodoListPopup()">Toggle To-Do List</button>
 
     <!-- Toggle button for the Shop pop-out -->
-    <button class="btn btn-success fixed-right mr-3 mt-3" onclick="toggleShopPopup()">Toggle Shop</button>
+    <button class="shop-button fixed-right mr-3 mt-3" onclick="toggleShopPopup()">
+        <img src="~/images/shop.png" alt="Shop">
+    </button>
 
     <button onclick="addTestCoins(100)">Add 100 Coins</button>
 
@@ -153,6 +155,20 @@
         right: 10px;
         top: 50px; /* Adjust this to move the button closer to the top */
         z-index: 9999;
+    }
+
+    /* Shop button styling */
+    .shop-button {
+        background: none;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        outline: none;
+    }
+
+    .shop-button img {
+        width: 50px;
+        height: 50px;
     }
 
     /* Flex container for popup content */
