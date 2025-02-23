@@ -6,10 +6,12 @@
 <div class="container text-center">
     <h2 class="display-4">Welcome to Fishodoro!</h2>
 
+    <!-- background -->
+    <body>
+    </body>
 
     <!-- Toggle button for the To-Do List pop-out -->
     <button class="btn btn-primary fixed-left ml-3 mt-3" onclick="toggleTodoListPopup()">Toggle To-Do List</button>
-
 
     <!-- Pop-out Panel containing the To-Do List -->
     <div id="todoListPopup" class="todo-popup" style="display: none;">
@@ -52,6 +54,15 @@
 
 <!-- CSS Styling for the To-Do List components -->
 <style>
+
+    /* pond background */
+    body {
+        background-image: url("../images/day_pond.png");
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
+
     /* Main popup container */
     .todo-popup {
         position: fixed;
@@ -120,7 +131,7 @@
         width: 100%;
         height: 100%;
         overflow: auto;
-        background-color: rgba(0, 0, 0, 0.4);
+        /*background-color: rgba(0, 0, 0, 0.4);*/
     }
 
     .modal-dialog {
