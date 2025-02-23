@@ -38,5 +38,42 @@ namespace Fishodoro.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+        public class TimerController : ControllerBase
+        {
+            private static Fishodoro timer = new Fishodoro(true); // Study timer as default
+
+            // Get the current timer display (mm:ss)
+            [HttpGet("get")]
+            public IActionResult GetTimer()
+            {
+                return Ok(new { time = timer.Display });
+            }
+
+            // Start the timer
+            [HttpPost("start")]
+            public IActionResult StartTimer()
+            {
+                // Start the timer (if it's already finished, reset it)
+                if (timer.Done)
+                {
+                    timer = new Fishodoro(true); // Restart with a new 25-minute study timer
+                }
+                timer.Start();  // Start the timer
+                return Ok(new { message = "Timer started" });
+            }
+
+            // Pause the timer
+            [HttpPost("pause")]
+            public IActionResult PauseTimer()
+            {
+                timer.Pause();  // Pause the timer
+                return Ok(new { message = "Timer paused" });
+            }
+        }
     }
 }
+    
+
+
+
+
