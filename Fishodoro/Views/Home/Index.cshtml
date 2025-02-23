@@ -84,6 +84,21 @@
             button:hover {
                 background-color: #cb416b; /* dark pink for hovering over buttons */
             }
+
+        #restart-button img {
+            width: 30px; /* Make the image smaller */
+            height: 30px; /* Keep the image proportional */
+        }
+
+        #start-button img {
+            width: 30px; /* Make the image smaller */
+            height: 30px; /* Keep the image proportional */
+        }
+
+        #pause-button img {
+            width: 30px; /* Make the image smaller */
+            height: 30px; /* Keep the image proportional */
+        }
     </style>
 </head>
 <body>
@@ -104,10 +119,16 @@
     </div>
 
     <!-- Button Container for Start and Pause -->
-    <div id="button-container">
-        <button id="restart-button">Restart</button>
-        <button id="start-button">Start</button>
-        <button id="pause-button">Pause</button>
+    <div id="button-container">                                 
+        <button id="restart-button">
+            <img src="~/images/Restart.png"/>
+        </button>
+        <button id="start-button">
+            <img src="~/images/unpause.png"/>
+        </button>
+        <button id="pause-button">
+            <img src="~/images/pause.png" />
+        </button>
     </div>
 
         <script>
