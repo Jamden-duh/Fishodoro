@@ -17,10 +17,6 @@ a {
   border-color: #1861ac;
 }
 
-body {
-  font-family: 'Quintessential', serif; /* Use your custom font as the primary font */
-}
-
 .nav-pills .nav-link.active, .nav-pills .show > .nav-link {
   color: #fff;
   background-color: #1b6ec2;
