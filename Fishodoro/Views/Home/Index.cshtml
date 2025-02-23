@@ -84,21 +84,6 @@
             button:hover {
                 background-color: #cb416b; /* dark pink for hovering over buttons */
             }
-
-
-        /* Cursor-attached item */
-        #cursor-item {
-            position: absolute;
-            pointer-events: none; /* Ensure it doesn't interfere with clicks */
-            opacity: 0.5; /* Half opacity */
-            display: none; /* Hidden by default */
-        }
-
-        /* Placed items container */
-        #placed-items-container {
-            position: relative;
-            width: 100%;
-            height: 100%;
         }
     </style>
 </head>
@@ -120,10 +105,16 @@
     </div>
 
     <!-- Button Container for Start and Pause -->
-    <div id="button-container">
-        <button id="restart-button">Restart</button>
-        <button id="start-button">Start</button>
-        <button id="pause-button">Pause</button>
+    <div id="button-container">                                 
+        <button id="restart-button">
+            <img src="~/images/Restart.png"/>
+        </button>
+        <button id="start-button">
+            <img src="~/images/unpause.png"/>
+        </button>
+        <button id="pause-button">
+            <img src="~/images/pause.png" />
+        </button>
     </div>
 
         <script>
