@@ -1,20 +1,11 @@
 ﻿@{
     ViewData["Title"] = "Fishodoro";
+    @* forces first part of tab name here? *@
 }
 
 <!-- Main container -->
 <div class="container text-center">
-  
-    <h2 class="display-4">Welcome to Fishcododotr!</Fishodoro></h2>
     @* Display timer here instead of welcome text *@
-
-    <!-- Toggle button for the To-Do List pop-out -->
-    <button class="btn btn-primary fixed-left ml-3 mt-3" onclick="toggleTodoListPopup()">Toggle To-Do List</button>
-
-    <!-- Toggle button for the Shop pop-out -->
-    <button class="btn btn-success fixed-right mr-3 mt-3" onclick="toggleShopPopup()">Toggle Shop</button>
-
-    <button onclick="addTestCoins(100)">Add 100 Coins</button>
 
     <!-- Coin display in the bottom right corner -->
     <div class="coin-display-fixed">
@@ -155,6 +146,20 @@
         z-index: 9999;
     }
 
+    /* Shop and To-Do button styling */
+    .button {
+        background: none;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        outline: none;
+    }
+
+    .button img {
+        width: 50px;
+        height: 50px;
+    }
+
     /* Flex container for popup content */
     .popup-content {
         display: flex;
@@ -172,6 +177,83 @@
         padding: 5px;
         background: white;
     }
+
+    /* ===== Updated Task List Styles ===== */
+        /* Task list container */
+        .task-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            width: 100%; /* Ensure the list takes full width */
+            overflow-x: hidden; /* Prevent horizontal scrolling */
+        }
+
+        /* Individual task item */
+        .list-group-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid #ddd;
+            margin-bottom: 5px;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            transition: background-color 0.3s ease;
+            width: 100%; /* Ensure the task item takes full width */
+            box-sizing: border-box; /* Include padding and border in the width */
+        }
+
+            .list-group-item:hover {
+                background-color: #f1f1f1;
+            }
+
+        /* Checkbox styling */
+        .delete-checkbox {
+            width: 20px;
+            height: 20px;
+            margin-right: 15px;
+            cursor: pointer;
+            flex-shrink: 0; /* Prevent the checkbox from shrinking */
+        }
+
+        /* Task content container */
+        .task-content {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            min-width: 0; /* Allow text to wrap */
+        }
+
+        /* Task title and description container */
+        .task-text {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            min-width: 0; /* Allow text to wrap */
+            width: 100%; /* Ensure the text container takes full width */
+        }
+
+        /* Task title (bold and larger font) */
+        .task-name {
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 2px; /* Reduce spacing between title and description */
+            white-space: normal; /* Allow text to wrap */
+            word-break: break-word; /* Break long words if necessary */
+            width: 100%; /* Ensure the title takes full width */
+            text-align: left; /* Anchor text to the left */
+        }
+
+        /* Task description (smaller font) */
+        .task-description {
+            font-size: 0.9em;
+            color: #555;
+            white-space: normal; /* Allow text to wrap */
+            word-break: break-word; /* Break long words if necessary */
+            width: 100%; /* Ensure the description takes full width */
+            text-align: left; /* Anchor text to the left */
+            padding-left: 20px; /* Tabbed effect (indent description) */
+        }
+    /* ===== End of Updated Task List Styles ===== */
 
     /* Shop column for two-column layout */
     .shop-items-scroll {
@@ -284,7 +366,7 @@
     }
 
     // Function to fetch and display tasks from the backend
-    function fetchTasks() {
+        function fetchTasks() {
         fetch("/Todo/GetTasks")
         .then(response => response.json())
         .then(tasks => {
@@ -295,10 +377,10 @@
                 const li = document.createElement("li");
                 li.className = "list-group-item";
                 li.setAttribute("data-index", index);
-                li.draggable = true;
+                li.draggable = true; // Ensure tasks are draggable
                 li.innerHTML = `
+                    <input type="checkbox" class="delete-checkbox" onclick="toggleTaskRemoval(${index})">
                     <div class="task-content">
-                        <input type="checkbox" class="delete-checkbox" onclick="toggleTaskRemoval(${index})">
                         <div class="task-text">
                             <div class="task-name">${task.name}</div>
                             <div class="task-description">${task.description}</div>
@@ -349,32 +431,41 @@
     .then(data => {
         console.log("Task added:", data);
         closeModal();
-        fetchTasks(); // Refresh the task list after adding
+        fetchTasks(); // Refresh the task list
+
+        // Clear input fields
+        document.getElementById("taskInput").value = "";
+        document.getElementById("taskDescription").value = "";
     })
     .catch(error => console.error("Error adding task:", error));
-    }
+}
 
-    // Remove a task when checkbox is checked
-    function toggleTaskRemoval(index) {
-        const checkbox = document.querySelectorAll('.delete-checkbox')[index];
-        if (checkbox.checked) {
-            // Fade out animation before removal
-            const listItem = checkbox.closest('.list-group-item');
-            listItem.style.transition = 'all 0.3s ease';
-            listItem.style.opacity = '0';
-            listItem.style.transform = 'translateX(-100%)';
+            // Remove a task when checkbox is checked
+        function toggleTaskRemoval(index) {
+            fetch("/Todo/ToggleTaskRemoval", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(index) // Send the task index to the backend
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Failed to remove task");
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("Task removed:", data);
+                fetchTasks(); // Refresh the task list
 
-            setTimeout(() => {
-                tasks.splice(index, 1);
-                localStorage.setItem('tasks', JSON.stringify(tasks));
-                fetchTasks();
-            }, 300);
-
-            // Add coins when a task is checked off
-            coins += 10;
-            updateCoinDisplay();
+                // Add 10 coins when a task is completed
+                coins += 10;
+                updateCoinDisplay(); // Update coins display
+            })
+            .catch(error => console.error("Error removing task:", error));
         }
-    }
+
 
     // Buy an item from the shop
     function buyItem(price) {
@@ -394,7 +485,73 @@
         localStorage.setItem("coins", coins); // Save coins to localStorage
     }
 
+    // ===== NEW DRAG-AND-DROP CODE =====
+    let draggedItem = null;
+    
+    document.addEventListener("dragstart", (e) => {
+    if (e.target.classList.contains("list-group-item")) {
+        draggedItem = e.target;
+        e.target.style.opacity = "0.5";
 
+        // ===== NEW CODE TO REMOVE GHOST IMAGE =====
+        const dragImage = new Image();
+        dragImage.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"; // Transparent 1x1 image
+        e.dataTransfer.setDragImage(dragImage, 0, 0); // Set the drag image
+        // ===== END OF NEW CODE =====
+    }
+    });
+    
+    document.addEventListener("dragend", (e) => {
+        if (draggedItem) {
+            draggedItem.style.opacity = "1";
+            draggedItem = null;
+        }
+    });
+    
+    document.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        const afterElement = getDragAfterElement(e.clientY);
+        const list = document.getElementById("todoList");
+        if (afterElement == null) {
+            list.appendChild(draggedItem);
+        } else {
+            list.insertBefore(draggedItem, afterElement);
+        }
+    });
+    
+    function getDragAfterElement(y) {
+        const draggableElements = [...document.querySelectorAll(".list-group-item:not(.dragging)")];
+        return draggableElements.reduce((closest, child) => {
+            const box = child.getBoundingClientRect();
+            const offset = y - box.top - box.height / 2;
+            if (offset < 0 && offset > closest.offset) {
+                return { offset, element: child };
+            } else {
+                return closest;
+            }
+        }, { offset: Number.NEGATIVE_INFINITY }).element;
+    }
+    
+    document.addEventListener("drop", async (e) => {
+        const taskElements = document.querySelectorAll(".list-group-item");
+        const newOrder = Array.from(taskElements).map((element, index) => ({
+            Name: element.querySelector(".task-name").innerText,
+            Description: element.querySelector(".task-description").innerText,
+            IsCompleted: false
+        }));
+    
+        await fetch("/Todo/ReorderTasks", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(newOrder)
+        });
+    
+        fetchTasks(); // Refresh the task list
+    });
+    // ===== END OF NEW DRAG-AND-DROP CODE =====
+    
     // Load saved coin data when the page loads
     window.onload = function () {
         const savedCoins = localStorage.getItem("coins");
@@ -455,3 +612,107 @@
     updateCoinDisplay();
     }
 </script>
+
+
+<!--figuring out timer shit ohhhh myyyyy godddddddddd-->
+
+
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fishodoro Timer</title>
+    <style>
+        /* Banner Styles */
+        #banner {
+            background-color: #ffc0cb; /* Pale pink background */
+            color: brown; /* White text */
+            text-align: center;
+            padding: 50px 20;
+            font-size: 1.5em;
+            font-weight: bold;
+            box-shadow: 0px 4px 2px -2px gray; /* Slight shadow under the banner */
+        }
+
+        /* Timer Display Styles */
+        #timer-display {
+            font-size: 3em;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        /* Button Styles */
+        button {
+            padding: 10px 20px;
+            font-size: 1.2em;
+            margin: 10px;
+            cursor: pointer;
+            border: none;
+            background-color: #ffee8c; /*pale yellow for buttons */
+            color: brown;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <!-- Banner Section -->
+    <div id="banner">
+        <h1>Fishodoro Timer</h1>
+    <div id="timer-display">25:00</div>
+    <button id="start-button">Start</button>
+    <button id="pause-button">Pause</button>
+
+    <!-- Toggle button for the To-Do List pop-out -->
+    <button class="btn btn-primary fixed-left ml-3 mt-3" onclick="toggleTodoListPopup()">Toggle To-Do List</button>
+
+    <!-- Toggle button for the Shop pop-out -->
+    <button class="btn btn-success fixed-right mr-3 mt-3" onclick="toggleShopPopup()">Toggle Shop</button>
+    <script>
+        // Fetch the timer data from the server every second
+        function updateTimer() {
+            fetch('/api/timer/get')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('timer-display').innerHTML = data.time;
+                })
+                .catch(error => console.error('Error fetching timer:', error));
+        }
+
+        // Start the timer
+        document.getElementById('start-button').addEventListener('click', function() {
+            fetch('/api/timer/start', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Timer started');
+                    updateTimer();  // Immediately update the display
+                })
+                .catch(error => console.error('Error starting timer:', error));
+        });
+
+        // Pause the timer
+        document.getElementById('pause-button').addEventListener('click', function() {
+            fetch('/api/timer/pause', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Timer paused');
+                })
+                .catch(error => console.error('Error pausing timer:', error));
+        });
+
+        // Update the timer display every second
+        setInterval(updateTimer, 1000);
+    </script>
+    </div>
+
+    <!-- Main Content Section -->
+    
+
+    
+</body>
+</html>
