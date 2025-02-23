@@ -52,12 +52,12 @@
 
         /* Study timer color */
         .study-timer {
-            color: saddlebrown;
+            color: green;
         }
 
         /* Break timer color */
         .break-timer {
-            color: saddlebrown;
+            color: red;
         }
 
         /* Container for Start and Pause buttons */
@@ -153,8 +153,6 @@
         <button aria-label="shop button" class="button fixed-right mr-3 mt-3" onclick="toggleShopPopup()">
             <img src="~/images/shop.png" alt="Shop">
         </button>
-
-        
     </div>
 
     <!-- Button Container for Start and Pause -->
@@ -229,6 +227,10 @@
         </script>
     </div>
 
+    <!-- Main Content Section -->
+
+
+
 </body>
 </html>
 
@@ -261,22 +263,20 @@
         </div>
         <!-- Save Button -->
         <button class="btn btn-primary" onclick="saveSettings()">Save</button>
-        <!-- login -->
-        @if (User.Identity.IsAuthenticated)
-        {
-            <a class ="auth0" id="qsLogoutBtn" asp-controller="Account" asp-action="Logout">Logout</a>
-        }
-        else
-        {
-            <a class="auth0" id="qsLoginBtn" asp-controller="Account" asp-action="Login">Login</a>
-        }
     </div>
 </div>
 
 <!-- Main container -->
 <div class="container text-center">
 
-    
+    @if (User.Identity.IsAuthenticated)
+    {
+        <button><a id="qsLogoutBtn" asp-controller="Account" asp-action="Logout">Logout</a></button>
+    }
+    else
+    {
+        <button><a id="qsLoginBtn" asp-controller="Account" asp-action="Login">Login</a></button>
+    }
    
 
     @* Display timer here instead of welcome text *@
@@ -585,23 +585,17 @@
         right: 20px;
         display: flex;
         align-items: center;
-        @*background-color: rgba(255, 255, 255, 0.9);
+        background-color: rgba(255, 255, 255, 0.9);
         padding: 10px;
         border-radius: 8px;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        z-index: 9999;*@
-
-        background: none;
-        border: none;
-        padding: 0;
-        cursor: pointer;
-        outline: none;
+        z-index: 9999;
     }
 
     /* Coin icon styling */
     .coin-icon {
-        width: 60px;
-        height: 60px;
+        width: 30px;
+        height: 30px;
         margin-right: 10px;
     }
 
@@ -651,12 +645,6 @@
                 border: 1px solid #ddd;
                 border-radius: 4px;
             }
-
-        /* log in links */
-        .auth0{
-            position: relative;
-            color: green;
-        }
 
         /* Switch Button */
         .switch {
