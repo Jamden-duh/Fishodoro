@@ -2,113 +2,116 @@
 {
     public class Fishodoro
     {
-        // fields
+        // Fields
         private System.Timers.Timer timer;
         private int time;   // in seconds
-        private bool done; 
+        private bool done;
+        private bool isStudyTimer; // Tracks whether this is a study or break timer
 
-        // properties
+        // Timer settings
+        private int studyTime = 25; // Default study time in minutes
+        private int breakTime = 5;  // Default break time in minutes
+
+        // Properties
         /// <summary>
-        /// displays time remaining mm:ss
+        /// Displays time remaining in mm:ss format
         /// </summary>
-        public string Display { get => $"{time / 60}: {time % 60}"; }
+        public string Display
+        {
+            get => $"{time / 60:D2}:{time % 60:D2}"; // Ensures two-digit formatting
+        }
+
         /// <summary>
-        /// returns bool whether or not timer has finished
+        /// Returns whether the timer has finished
         /// </summary>
         public bool Done { get => done; }
 
-        // constructors
         /// <summary>
-        /// creates default timer (25m study, 5m break)
+        /// Returns whether the current timer is a study timer
         /// </summary>
-        /// <param name="study"> true for study timer, false for break </param>
+        public bool IsStudyTimer { get => isStudyTimer; }
+
+        // Constructors
+        /// <summary>
+        /// Creates a default timer (25m study or 5m break)
+        /// </summary>
+        /// <param name="study">True for study timer, false for break timer</param>
         public Fishodoro(bool study)
         {
             timer = new System.Timers.Timer(1000);
-
-            if (study)
-                time = 25 * 60; // study
-            else
-                time = 5 * 60;  // break
-
+            isStudyTimer = study;
+            ResetTimer(); // Initialize the timer with the correct time
             done = false;
 
-            // event hookup
+            // Event hookup
             timer.Elapsed += Tick!;
         }
-        /// <summary>
-        /// custom timer
-        /// </summary>
-        /// <param name="minutes"> minutes timer should run for </param>
-        public Fishodoro(int minutes)
-        {
-            timer = new System.Timers.Timer(1000);
-            time = minutes * 60;
-            done = false;
-        // event hookup
-        timer.Elapsed += Tick!;
-        }
 
-        // methods
+        // Methods
         /// <summary>
-        /// enables timer
+        /// Enables the timer
         /// </summary>
         public void Start()
         {
             timer.Enabled = true;
         }
+
         /// <summary>
-        /// disables timer
+        /// Disables the timer
         /// </summary>
         public void Pause()
         {
             timer.Enabled = false;
         }
 
-        // events
-        private static void Tick(Object source, System.Timers.ElapsedEventArgs e)
+        /// <summary>
+        /// Restarts the timer with the current settings
+        /// </summary>
+        public void Restart()
         {
-            Fishodoro t;
-            if (source is Fishodoro)
-            {
-                t = (Fishodoro)source;
-                
-                // updates timer
-                t.time--;
-
-                // stops timer after it runs out
-                if (t.time == 0)
-                {
-                    t.Pause();
-                    t.done = true;
-                }
-            }    
+            ResetTimer();
+            Start();
         }
-
 
         /// <summary>
-        /// displays the current timer value
+        /// Updates the study and break time settings
         /// </summary>
-        public string DisplayTimer()
-        {
-            Console.WriteLine(Display);
-            return Display;
-        }
-
-        private int studyTime; // Study time in minutes
-        private int breakTime; // Break time in minutes
-
+        /// <param name="newStudyTime">New study time in minutes</param>
+        /// <param name="newBreakTime">New break time in minutes</param>
         public void UpdateSettings(int newStudyTime, int newBreakTime)
         {
             studyTime = newStudyTime;
             breakTime = newBreakTime;
-            // Optionally, reset the timer with the new settings
-            ResetTimer();
+            ResetTimer(); // Reset the timer with the new settings
         }
 
+        /// <summary>
+        /// Resets the timer based on whether it's a study or break timer
+        /// </summary>
         private void ResetTimer()
         {
-            // Logic to reset the timer with the new study/break times
+            time = isStudyTimer ? studyTime * 60 : breakTime * 60;
+            done = false;
+        }
+
+        // Events
+        private void Tick(Object source, System.Timers.ElapsedEventArgs e)
+        {
+            // Decrement the time
+            time--;
+
+            // Stop the timer if it reaches 0
+            if (time <= 0)
+            {
+                time = 0;
+                Pause();
+                done = true;
+
+                // Switch to the other timer (study <-> break)
+                isStudyTimer = !isStudyTimer;
+                ResetTimer(); // Reset the timer with the new mode
+                Start();      // Start the new timer
+            }
         }
     }
 }

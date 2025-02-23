@@ -1,6 +1,7 @@
- using System.Diagnostics;
+using System.Diagnostics;
 using Fishodoro.Models;
 using Microsoft.AspNetCore.Mvc;
+
 
 namespace Fishodoro.Controllers
 {
@@ -72,15 +73,21 @@ namespace Fishodoro.Controllers
         }
     }
 
+    [ApiController]
+    [Route("api/timer")]
     public class TimerController : ControllerBase
     {
         private static Fishodoro timer = new Fishodoro(true); // Study timer as default
 
-        // Get the current timer display (mm:ss)
+        // Get the current timer display (mm:ss) and state (study/break)
         [HttpGet("get")]
         public IActionResult GetTimer()
         {
-            return Ok(new { time = timer.Display });
+            return Ok(new
+            {
+                time = timer.Display,
+                isStudyTimer = timer.IsStudyTimer // Include the current timer state
+            });
         }
 
         // Start the timer
@@ -90,7 +97,7 @@ namespace Fishodoro.Controllers
             // Start the timer (if it's already finished, reset it)
             if (timer.Done)
             {
-                timer = new Fishodoro(true); // Restart with a new 25-minute study timer
+                timer = new Fishodoro(true); // Restart with a new study timer
             }
             timer.Start();  // Start the timer
             return Ok(new { message = "Timer started" });
@@ -104,11 +111,18 @@ namespace Fishodoro.Controllers
             return Ok(new { message = "Timer paused" });
         }
 
+        // Restart the timer
+        [HttpPost("restart")]
+        public IActionResult RestartTimer()
+        {
+            timer.Restart(); // Restart the timer
+            return Ok(new { message = "Timer restarted" });
+        }
+
         // Update timer settings
         [HttpPost("updateSettings")]
         public IActionResult UpdateTimerSettings([FromBody] TimerSettings settings)
         {
-            // Update the timer logic with the new settings
             timer.UpdateSettings(settings.StudyTime, settings.BreakTime);
             return Ok(new { message = "Timer settings updated" });
         }

@@ -20,7 +20,11 @@
             font-weight: bold;
             box-shadow: 0px 4px 2px -2px gray; /* Slight shadow under the banner */
             width: 100%;
-            position: relative; /* For positioning the buttons */
+            position: fixed; /* Fixed position to keep it at the top */
+            top: 0; /* Align to the top of the screen */
+            left: 0; /* Align to the left of the screen */
+            z-index: 1000; /* Ensure it stays above other content */
+            height: 175px; /* Add a fixed height */
         }
 
         .banner-button img {
@@ -38,28 +42,47 @@
             right: 10px; /* Position Shop button on the right */
         }
 
-        /* Timer Display Styles */
         #timer-display {
             font-size: 3em;
             font-weight: bold;
             text-align: center;
-            margin-top: 30px;
+            margin-top: 10px;
+            transition: color 0.5s ease; /* Smooth transition for color change */
         }
 
-        /* Button Styles */
+        /* Study timer color */
+        .study-timer {
+            color: green;
+        }
+
+        /* Break timer color */
+        .break-timer {
+            color: red;
+        }
+
+        /* Container for Start and Pause buttons */
+        #button-container {
+            position: fixed;
+            top: 175px; /* Adjust this value based on the banner height */
+            left: 0;
+            width: 100%;
+            text-align: center;
+            z-index: 999;
+        }
+
         button {
             padding: 10px 20px;
             font-size: 1.2em;
             margin: 10px;
             cursor: pointer;
             border: none;
-            background-color: #ffee8c; /*pale yellow for buttons */
+            background-color: #ffee8c; /* pale yellow for buttons */
             color: brown;
             border-radius: 5px;
         }
 
             button:hover {
-                background-color: #cb416b; /*dark pink for hovering over buttons*/
+                background-color: #cb416b; /* dark pink for hovering over buttons */
             }
     </style>
 </head>
@@ -67,10 +90,7 @@
     <!-- Banner Section -->
     <div id="banner">
         <h1>Fishodoro Timer</h1>
-        <div id="timer-display">25:00</div>             <!--think i found the fucking issue-->
-        <button id="start-button">Start</button>
-        <button id="pause-button">Pause</button>
-
+        <div id="timer-display">25:00</div>
 
         <!-- Toggle button for the To-Do List pop-out -->
         <button aria-label="todo button" class="button fixed-left ml-3 mt-3" onclick="toggleTodoListPopup()">
@@ -81,41 +101,70 @@
         <button aria-label="shop button" class="button fixed-right mr-3 mt-3" onclick="toggleShopPopup()">
             <img src="~/images/shop.png" alt="Shop">
         </button>
+    </div>
+
+    <!-- Button Container for Start and Pause -->
+    <div id="button-container">
+        <button id="restart-button">Restart</button>
+        <button id="start-button">Start</button>
+        <button id="pause-button">Pause</button>
+    </div>
 
         <script>
-            // Fetch the timer data from the server every second
-            function updateTimer() {
-                fetch('/api/timer/get')
-                    .then(response => response.json())
-                    .then(data => {
-                        document.getElementById('timer-display').innerHTML = data.time;
-                    })
-                    .catch(error => console.error('Error fetching timer:', error));
-            }
+             // Update timer settings (example function, modify as needed)
+                        // Fetch the timer data from the server every second
+        function updateTimer() {
+            fetch('/api/timer/get')
+                .then(response => response.json())
+                .then(data => {
+                    // Update the timer display
+                    document.getElementById('timer-display').innerHTML = data.time;
 
-            // Start the timer
-            document.getElementById('start-button').addEventListener('click', function () {
-                fetch('/api/timer/start', { method: 'POST' })
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log('Timer started');
-                        updateTimer();  // Immediately update the display
-                    })
-                    .catch(error => console.error('Error starting timer:', error));
-            });
+                    // Change the timer color based on the current state
+                    const timerDisplay = document.getElementById('timer-display');
+                    if (data.isStudyTimer) {
+                        timerDisplay.style.color = 'green'; // Study timer color
+                    } else {
+                        timerDisplay.style.color = 'red'; // Break timer color
+                    }
+                })
+                .catch(error => console.error('Error fetching timer:', error));
+        }
 
-            // Pause the timer
-            document.getElementById('pause-button').addEventListener('click', function () {
-                fetch('/api/timer/pause', { method: 'POST' })
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log('Timer paused');
-                    })
-                    .catch(error => console.error('Error pausing timer:', error));
-            });
+        // Start the timer
+        document.getElementById('start-button').addEventListener('click', function () {
+            fetch('/api/timer/start', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Timer started');
+                    updateTimer();  // Immediately update the display
+                })
+                .catch(error => console.error('Error starting timer:', error));
+        });
 
-            // Update the timer display every second
-            setInterval(updateTimer, 1000);
+        // Pause the timer
+        document.getElementById('pause-button').addEventListener('click', function () {
+            fetch('/api/timer/pause', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Timer paused');
+                })
+                .catch(error => console.error('Error pausing timer:', error));
+        });
+
+        // Restart the timer
+        document.getElementById('restart-button').addEventListener('click', function () {
+            fetch('/api/timer/restart', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Timer restarted');
+                    updateTimer();  // Immediately update the display
+                })
+                .catch(error => console.error('Error restarting timer:', error));
+        });
+
+        // Update the timer display every second
+        setInterval(updateTimer, 1000);
         </script>
     </div>
 
@@ -427,6 +476,9 @@
         flex-wrap: wrap;
         justify-content: space-between;
         gap: 10px;
+        overflow-x: hidden; /* Prevent horizontal scrolling */
+            overflow-y: auto; /* Enable vertical scrolling */
+            padding-right: 20px; /* Add padding to the right side */
     }
 
     .shop-column {
@@ -676,7 +728,10 @@ window.onload = function () {
 
     // Apply initial coin display styles
     adjustCoinDisplay();
+
+            loadSettings();
 }
+
 
     // Add a new task
     function addTask() {
@@ -893,44 +948,63 @@ window.onload = function () {
             }
         }
 
-        // Save settings
+                // Save settings
         function saveSettings() {
-            const soundEnabled = document.getElementById("soundToggle").checked;
-            const studyTime = document.getElementById("studyTime").value;
-            const breakTime = document.getElementById("breakTime").value;
+            const studyTime = parseInt(document.getElementById('studyTime').value, 10);
+            const breakTime = parseInt(document.getElementById('breakTime').value, 10);
 
-            // Save settings to localStorage
-            localStorage.setItem("soundEnabled", soundEnabled);
-            localStorage.setItem("studyTime", studyTime);
-            localStorage.setItem("breakTime", breakTime);
+            // Validate input
+            if (isNaN(studyTime) || isNaN(breakTime) || studyTime < 1 || breakTime < 1) {
+                alert('Please enter valid study and break times (1-60 minutes).');
+                return;
+            }
 
-            // Update the timer (if applicable)
-            updateTimerSettings(studyTime, breakTime);
+            // Save settings to local storage
+            localStorage.setItem('studyTime', studyTime);
+            localStorage.setItem('breakTime', breakTime);
 
-            // Close the popup
-            toggleSettingsPopup();
+            // Send new settings to the backend
+            fetch('/api/timer/updateSettings', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ StudyTime: studyTime, BreakTime: breakTime }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Settings saved:', data);
+                    toggleSettingsPopup(); // Close the settings popup
+                })
+                .catch(error => console.error('Error saving settings:', error));
         }
 
-        // Update timer settings (example function, modify as needed)
-        function updateTimerSettings(studyTime, breakTime) {
-            console.log("Updating timer settings:", { studyTime, breakTime });
-            // Send new settings to the backend or update the timer logic
-            fetch("/api/timer/updateSettings", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ studyTime, breakTime })
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log("Timer settings updated:", data);
-            })
-            .catch(error => console.error("Error updating timer settings:", error));
+        // Load settings from local storage when the page loads
+        function loadSettings() {
+            const studyTime = localStorage.getItem('studyTime');
+            const breakTime = localStorage.getItem('breakTime');
+
+            if (studyTime !== null && breakTime !== null) {
+                // Update the input fields with the saved settings
+                document.getElementById('studyTime').value = studyTime;
+                document.getElementById('breakTime').value = breakTime;
+
+                // Send the saved settings to the backend
+                fetch('/api/timer/updateSettings', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ StudyTime: parseInt(studyTime, 10), BreakTime: parseInt(breakTime, 10) }),
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Settings loaded:', data);
+                    })
+                    .catch(error => console.error('Error loading settings:', error));
+            }
         }
-            // ===== NEW CODE ENDS HERE =====
 </script>
 
 
 <!--figuring out timer shit ohhhh myyyyy godddddddddd-->
-
-
-   
