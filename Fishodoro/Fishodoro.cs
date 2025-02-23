@@ -85,5 +85,15 @@
                 }
             }    
         }
+
+
+        /// <summary>
+        /// displays the current timer value
+        /// </summary>
+        public string DisplayTimer()
+        {
+            Console.WriteLine(Display);
+            return Display;
+        }
     }
 }

@@ -8,6 +8,11 @@ html {
   }
 }
 
+/* @font-face { */
+  /*font-family: 'Quintessential'; /* Choose a name for your font */
+  /* src: url('Fonts/Quintessential.ttf') format('truetype'); /*Path to your font file */
+/* } */
+
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
   box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
   /* this blue is for the outline of the todo list button when clicked */
@@ -19,6 +24,13 @@ html {
   min-height: 100%;
 }
 
+@font-face {
+    font-family: 'Quintessential'; /* Choose a name for your font*/
+    src: url('Fonts/Quintessential-Regular.ttf') format('truetype'); /*Path to your font file*/
+  }
+
 body {
   margin-bottom: 60px;
+  font-family: 'Quintessential', serif; /* Use your custom font as the primary font */
 }
+

@@ -1,20 +1,23 @@
 ﻿@{
     ViewData["Title"] = "Fishodoro";
+    @* forces first part of tab name here? *@
 }
 
 <!-- Main container -->
 <div class="container text-center">
-    <h2 class="display-4">Welcome to Fishodoro!</h2>
-
-    <!-- background -->
-    <body>
-    </body>
+  
+    <h2 class="display-4">Welcome to Fishcododotr!</Fishodoro></h2>
+    @* Display timer here instead of welcome text *@
 
     <!-- Toggle button for the To-Do List pop-out -->
-    <button class="btn btn-primary fixed-left ml-3 mt-3" onclick="toggleTodoListPopup()">Toggle To-Do List</button>
+    <button aria-label="todo button" class="button fixed-left ml-3 mt-3" onclick="toggleTodoListPopup()">
+        <img src="~/images/todo.png" alt="Shop">
+    </button>
 
     <!-- Toggle button for the Shop pop-out -->
-    <button class="btn btn-success fixed-right mr-3 mt-3" onclick="toggleShopPopup()">Toggle Shop</button>
+    <button aria-label="shop button" class="button fixed-right mr-3 mt-3" onclick="toggleShopPopup()">
+        <img src="~/images/shop.png" alt="Shop">
+    </button>
 
     <!-- Coin display in the bottom right corner -->
     <div class="coin-display-fixed">
@@ -153,6 +156,20 @@
         right: 10px;
         top: 50px; /* Adjust this to move the button closer to the top */
         z-index: 9999;
+    }
+
+    /* Shop and To-Do button styling */
+    .button {
+        background: none;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        outline: none;
+    }
+
+    .button img {
+        width: 50px;
+        height: 50px;
     }
 
     /* Flex container for popup content */
