@@ -5,19 +5,7 @@
 
 <!-- Main container -->
 <div class="container text-center">
-  
-    <h2 class="display-4">Welcome to Fishcododotr!</Fishodoro></h2>
     @* Display timer here instead of welcome text *@
-
-    <!-- Toggle button for the To-Do List pop-out -->
-    <button aria-label="todo button" class="button fixed-left ml-3 mt-3" onclick="toggleTodoListPopup()">
-        <img src="~/images/todo.png" alt="Shop">
-    </button>
-
-    <!-- Toggle button for the Shop pop-out -->
-    <button aria-label="shop button" class="button fixed-right mr-3 mt-3" onclick="toggleShopPopup()">
-        <img src="~/images/shop.png" alt="Shop">
-    </button>
 
     <!-- Coin display in the bottom right corner -->
     <div class="coin-display-fixed">
@@ -624,3 +612,107 @@
     updateCoinDisplay();
     }
 </script>
+
+
+<!--figuring out timer shit ohhhh myyyyy godddddddddd-->
+
+
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fishodoro Timer</title>
+    <style>
+        /* Banner Styles */
+        #banner {
+            background-color: #ffc0cb; /* Pale pink background */
+            color: brown; /* White text */
+            text-align: center;
+            padding: 50px 20;
+            font-size: 1.5em;
+            font-weight: bold;
+            box-shadow: 0px 4px 2px -2px gray; /* Slight shadow under the banner */
+        }
+
+        /* Timer Display Styles */
+        #timer-display {
+            font-size: 3em;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        /* Button Styles */
+        button {
+            padding: 10px 20px;
+            font-size: 1.2em;
+            margin: 10px;
+            cursor: pointer;
+            border: none;
+            background-color: #ffee8c; /*pale yellow for buttons */
+            color: brown;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <!-- Banner Section -->
+    <div id="banner">
+        <h1>Fishodoro Timer</h1>
+    <div id="timer-display">25:00</div>
+    <button id="start-button">Start</button>
+    <button id="pause-button">Pause</button>
+
+    <!-- Toggle button for the To-Do List pop-out -->
+    <button class="btn btn-primary fixed-left ml-3 mt-3" onclick="toggleTodoListPopup()">Toggle To-Do List</button>
+
+    <!-- Toggle button for the Shop pop-out -->
+    <button class="btn btn-success fixed-right mr-3 mt-3" onclick="toggleShopPopup()">Toggle Shop</button>
+    <script>
+        // Fetch the timer data from the server every second
+        function updateTimer() {
+            fetch('/api/timer/get')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('timer-display').innerHTML = data.time;
+                })
+                .catch(error => console.error('Error fetching timer:', error));
+        }
+
+        // Start the timer
+        document.getElementById('start-button').addEventListener('click', function() {
+            fetch('/api/timer/start', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Timer started');
+                    updateTimer();  // Immediately update the display
+                })
+                .catch(error => console.error('Error starting timer:', error));
+        });
+
+        // Pause the timer
+        document.getElementById('pause-button').addEventListener('click', function() {
+            fetch('/api/timer/pause', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Timer paused');
+                })
+                .catch(error => console.error('Error pausing timer:', error));
+        });
+
+        // Update the timer display every second
+        setInterval(updateTimer, 1000);
+    </script>
+    </div>
+
+    <!-- Main Content Section -->
+    
+
+    
+</body>
+</html>
