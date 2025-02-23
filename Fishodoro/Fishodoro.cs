@@ -45,9 +45,8 @@
             timer = new System.Timers.Timer(1000);
             time = minutes * 60;
             done = false;
-
-            // event hookup
-            timer.Elapsed += Tick!;
+        // event hookup
+        timer.Elapsed += Tick!;
         }
 
         // methods
@@ -94,6 +93,22 @@
         {
             Console.WriteLine(Display);
             return Display;
+        }
+
+        private int studyTime; // Study time in minutes
+        private int breakTime; // Break time in minutes
+
+        public void UpdateSettings(int newStudyTime, int newBreakTime)
+        {
+            studyTime = newStudyTime;
+            breakTime = newBreakTime;
+            // Optionally, reset the timer with the new settings
+            ResetTimer();
+        }
+
+        private void ResetTimer()
+        {
+            // Logic to reset the timer with the new study/break times
         }
     }
 }
